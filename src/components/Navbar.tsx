@@ -1,14 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth'
+import { Link } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 
 
 export default function Navbar() {
     const userLoginData = useAuth();
-    const navigate = useNavigate();
+
     const handleLogoutClick = () => {
         userLoginData.logoutUser();
-        // navigate("/");
     }
 
     if (userLoginData.isUserLoggedIn) {
