@@ -117,9 +117,21 @@ export class X3DH {
     */
 
     async initKeyStore(): Promise<void> {
-        this.keyStore = new Store("secureKeyStorage", "x3dh");
+        const identityString = await this.identityKeyManager.getMyIdentityString();
+        this.keyStore = new Store(identityString, "x3dh");
         await this.keyStore.init();
     }
+
+
+    /**
+     * Destroy the key store.
+     * @returns {Promise<void>}
+     */
+    async destoryKeyStore(): Promise<void> {
+        await this.keyStore.init();
+        await this.keyStore.destroy();
+    }
+
 
     /**
      * @returns {SodiumPlus}

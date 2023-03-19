@@ -27,19 +27,21 @@ export async function hexEncodeIdentityPublic(
 }
 
 
-export async function encryptGroupMessage(groupKeyStore: GroupKeyStore, message: string): Promise<Buffer> {
+export async function encryptGroupMessage(groupKeyStore: GroupKeyStore, message: string): Promise<string> {
     if (!sodium) sodium = await SodiumPlus.auto();
     const nonce = await sodium.sodium_hex2bin(groupKeyStore.nonce);
     const groupKey = new CryptographyKey(await sodium.sodium_hex2bin(groupKeyStore.groupKey));
     const encryptedMessage = await sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(message, nonce, groupKey);
-    return encryptedMessage;
+    const encodedEncryptedMessage = await sodium.sodium_bin2hex(encryptedMessage);
+    return encodedEncryptedMessage;
 }
 
-export async function decryptGroupMessage(groupKeyStore: GroupKeyStore, encryptedMessage: Buffer): Promise<string> {
+export async function decryptGroupMessage(groupKeyStore: GroupKeyStore, encryptedMessage: string): Promise<string> {
     if (!sodium) sodium = await SodiumPlus.auto();
     const nonce = await sodium.sodium_hex2bin(groupKeyStore.nonce);
     const groupKey = new CryptographyKey(await sodium.sodium_hex2bin(groupKeyStore.groupKey));
-    const decryptedMessage = await sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(encryptedMessage, nonce, groupKey);
+    const decodedMessage = await sodium.sodium_hex2bin(encryptedMessage);
+    const decryptedMessage = await sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(decodedMessage, nonce, groupKey);
     return decryptedMessage.toString();
 }
 
@@ -136,6 +138,10 @@ export async function decodeIdentityKeyfromHexEncodedString(identityKey: string)
         await sodium.sodium_hex2bin(identityKey)
     )
     return identityPublic;
+}
+
+export async function destroyIdentityKeyStore() {
+    await x3dh.destoryKeyStore();
 }
 
 

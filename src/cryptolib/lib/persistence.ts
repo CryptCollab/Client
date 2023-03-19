@@ -326,12 +326,7 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
     async getPreKeypair(): Promise<PreKeyPair> {
         const sodium = await this.getSodium();
         if (this.preKey == undefined) {
-            console.log(`Prekey pair not found, generating......`)
             this.preKey = await this.generatePreKeypair();
-        }
-        else {
-
-            console.log("Prekey pair found, loading.....")
         }
         return this.preKey;
     }

@@ -3,6 +3,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import * as Y from "yjs";
 import {
+  decryptUpdate,
   distributeUpdate,
   onConnect,
   onDisconnect,
@@ -14,11 +15,13 @@ import {
 } from "../socket";
 import { toUint8Array } from "js-base64";
 import { useEffect } from "react";
+import { decryptGroupMessage } from "../utils/crypto";
 
 const ydoc = new Y.Doc();
 
-function applyDocumentUpdate(update: string) {
-  Y.applyUpdate(ydoc, toUint8Array(update), null);
+async function applyDocumentUpdate(update: string) {
+  const decryptedUpdate = await decryptUpdate(update);
+  Y.applyUpdate(ydoc, toUint8Array(decryptedUpdate), null);
 }
 
 const Tiptap = () => {
