@@ -4,14 +4,19 @@ import HomePage from "./pages/HomePage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import SignUpPage from "./pages/SignUpPage";
 import DashBoard from "./pages/DashBoard";
+import Tiptap from "./pages/TextEditor";
+import {socket} from "./socket";
+import { useEffect, useState } from "react";
 
 export default function App() {
+
     return (
         <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<SignUpPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
+            <Route path="/document" element={<Tiptap />} />
         </Routes>
     );
 }
