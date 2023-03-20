@@ -20,6 +20,7 @@ export class socketHandlers {
     onConnect = async () => {
         console.log("Connected to server with id: ", this.socketInstance.id);
         await cryptoUtils.setIdentity(this.socketInstance.id);
+        this.isConnected = true;
     }
     onDisconnect = async () => {
         await cryptoUtils.destroyIdentityKeyStore();
