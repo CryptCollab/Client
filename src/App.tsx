@@ -5,18 +5,27 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import SignUpPage from "./pages/SignUpPage";
 import DashBoard from "./pages/DashBoard";
 import Tiptap from "./pages/TextEditor";
-import {socket} from "./socket";
+import { CryptoUtils } from "./utils/crypto";
+import { socketHandlers } from "./utils/socket";
 import { useEffect, useState } from "react";
 
+export const cryptoUtils = new CryptoUtils();
+export const socket = new socketHandlers("http://localhost:8080");
 export default function App() {
-
-    return (
-        <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<SignUpPage />} />
-            <Route path="/dashboard" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} />
-            <Route path="/document" element={<Tiptap />} />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<SignUpPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashBoard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/document" element={<Tiptap />} />
+    </Routes>
+  );
 }
