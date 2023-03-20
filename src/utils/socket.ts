@@ -1,7 +1,9 @@
 import { io } from 'socket.io-client';
 import { fromUint8Array, toUint8Array } from "js-base64";
-import { cryptoUtils } from '../App';
+import { cryptoUtils, socket } from '../App';
 import { InitSenderInfo, InitServerInfo } from '../cryptolib/x3dh';
+import { document } from '../pages/TextEditor';
+import * as awarenessProtocol from 'y-protocols/awareness.js'
 // "undefined" means the URL will be computed from the `window.location` object
 
 
@@ -98,6 +100,17 @@ export class socketHandlers {
         //console.log("Distributing update");
         const encryptedUpdate = await cryptoUtils.encryptGroupMessage(fromUint8Array(update));
         this.socketInstance.emit("documentUpdate", encryptedUpdate);
+    }
+
+    distributeAwarenessUpdate = (changeObject: { added: []; updated: []; removed: []; }, origin: any) => {
+        if (origin === null) {
+            console.log("Not distributing awareness update");
+            return;
+        }
+        const { added, updated, removed } = changeObject;
+        const changedClients = added.concat(updated).concat(removed);
+        const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(document.awareness, changedClients)
+        this.socketInstance.emit("awarenessUpdate", fromUint8Array(encodedAwarenessState));
     }
 
 

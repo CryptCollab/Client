@@ -4,8 +4,11 @@ import Collaboration from "@tiptap/extension-collaboration";
 import { collabDocument } from "../utils/yjs";
 import { useEffect } from "react";
 import { fireEventHandlers, removeEventHandlers } from "../utils/eventHandler";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
-const document = new collabDocument();
+
+export const document = new collabDocument();
+document.setAwarenessState();
 
 const Tiptap = () => {
   useEffect(() => {
@@ -24,7 +27,12 @@ const Tiptap = () => {
       // Register the document with Tiptap
       Collaboration.configure({
         document: document.ydoc,
+        
       }),
+      // CollaborationCursor.configure({
+      //   user: cursorUser,
+      // }),
+
     ],
     //content: "Hello World",
   });
