@@ -1,6 +1,5 @@
 import { toUint8Array } from "js-base64";
 import * as Y from "yjs";
-import * as awarenessProtocol from 'y-protocols/awareness.js'
 import { cryptoUtils } from "../App";
 export class collabDocument {
     ydoc: Y.Doc;

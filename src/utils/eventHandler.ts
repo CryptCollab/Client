@@ -2,6 +2,11 @@ import { socket } from "../App";
 import { collabDocument } from "./yjs";
 
 
+
+/** 
+ * @deprecated
+ */
+
 export const fireEventHandlers = (document: collabDocument) => {
   const { socketInstance } = socket;
   socketInstance.connect();
@@ -23,7 +28,9 @@ export const fireEventHandlers = (document: collabDocument) => {
   socket.awareness.on("update", socket.distributeAwarenessUpdate)
 }
 
-
+/** 
+ * @deprecated
+ */
 
 export const removeEventHandlers = (document: collabDocument) => {
   const { socketInstance } = socket;

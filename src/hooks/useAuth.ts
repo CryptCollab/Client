@@ -1,7 +1,7 @@
 
 import { useAppDispatch, useAppSelector } from "./reduxHooks";
 import { login, logout } from "../features/userData/userLoginData-slice.ts";
-import { UserLoginDataState } from "../features/userData/userLoginData-slice";
+
 
 
 export default function useAuth() {

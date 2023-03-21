@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { fromUint8Array, toUint8Array } from "js-base64";
-import { cryptoUtils, socket } from '../App';
+import { cryptoUtils} from '../App';
 import { InitSenderInfo, InitServerInfo } from '../cryptolib/x3dh';
 import { document } from '../pages/TextEditor';
 import * as awarenessProtocol from 'y-protocols/awareness.js'
@@ -118,7 +118,7 @@ export class socketHandlers {
         }
         const { added, updated, removed } = changeObject;
         const changedClients = added.concat(updated).concat(removed);
-        const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients)
+        const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients);
         this.socketInstance.emit("awarenessUpdate", fromUint8Array(encodedAwarenessState));
     }
 
@@ -134,7 +134,7 @@ export class socketHandlers {
         awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
     }
 
-    connectHandler = (doc: Doc ) => {
+    connectHandler = (doc: Doc) => {
         this.socketInstance.connect();
         this.initAwareness(doc);
         this.socketInstance.on("connect", this.onConnect);
@@ -147,7 +147,7 @@ export class socketHandlers {
         this.socketInstance.on("awarenessUpdate", this.applyAwarenessUpdate);
         this.awareness.on('update', this.distributeAwarenessUpdate);
     }
-    
+
     disconnectHandler = () => {
         this.socketInstance.disconnect();
         this.socketInstance.off("connect", this.onConnect);
@@ -158,7 +158,7 @@ export class socketHandlers {
         this.socketInstance.off("groupMessage", this.processGroupMessage);
         this.socketInstance.off("documentUpdate", document.applyDocumentUpdate);
         this.socketInstance.off("awarenessUpdate", this.applyAwarenessUpdate);
-
+        this.awareness.off('update', this.distributeAwarenessUpdate);
     }
 
 

@@ -17,7 +17,6 @@ import {
     IdentityKeyManagerInterface,
     DefaultIdentityKeyManager,
     PreKeyPair,
-    IdentityKeyPair
 } from "./lib/persistence";
 import {
     concat,
@@ -153,7 +152,7 @@ export class X3DH {
      */
     async generateOneTimeKeys(
         signingKey: Ed25519SecretKey,
-        numKeys: number = 100
+        numKeys: number
     ): Promise<SignedBundle> {
         const sodium = await this.getSodium();
         const bundle = await generateBundle(numKeys);
@@ -170,7 +169,7 @@ export class X3DH {
         }
         // Hex-encode all the public keys
         const encodedBundle: string[] = [];
-        for (let pk of publicKeys) {
+        for (const pk of publicKeys) {
             encodedBundle.push(await sodium.sodium_bin2hex(pk.getBuffer()));
         }
 
@@ -221,7 +220,7 @@ export class X3DH {
         const DH3 = await sodium.crypto_scalarmult(ephSecret, signedPreKey);
         let SK: CryptographyKey;
         if (res.OneTimeKey) {
-            let DH4 = await sodium.crypto_scalarmult(
+            const DH4 = await sodium.crypto_scalarmult(
                 ephSecret,
                 new X25519PublicKey(await sodium.sodium_hex2bin(res.OneTimeKey))
             );
@@ -258,6 +257,7 @@ export class X3DH {
             IK: identityKey,
             EK: ephPublic,
             SK: SK,
+            // eslint-disable-next-line no-constant-condition
             OTK: typeof res.OneTimeKey ? res.OneTimeKey : null
         };
         return recipientPayload;
@@ -344,7 +344,7 @@ export class X3DH {
 
         let SK: CryptographyKey;
         if (req.OneTimeKey) {
-            let DH4 = await sodium.crypto_scalarmult(
+            const DH4 = await sodium.crypto_scalarmult(
                 await this.identityKeyManager.fetchAndWipeOneTimeSecretKey(req.OneTimeKey),
                 ephemeral
             );
