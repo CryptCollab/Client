@@ -134,7 +134,7 @@ export class socketHandlers {
         awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
     }
 
-    connect = (doc: Doc ) => {
+    connectHandler = (doc: Doc ) => {
         this.socketInstance.connect();
         this.initAwareness(doc);
         this.socketInstance.on("connect", this.onConnect);
@@ -148,7 +148,7 @@ export class socketHandlers {
         this.awareness.on('update', this.distributeAwarenessUpdate);
     }
     
-    disconnect = () => {
+    disconnectHandler = () => {
         this.socketInstance.disconnect();
         this.socketInstance.off("connect", this.onConnect);
         this.socketInstance.off("disconnect", this.onDisconnect);

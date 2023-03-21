@@ -12,11 +12,11 @@ export const document = new collabDocument();
 
 const Tiptap = () => {
   useEffect(() => {
-    socket.connect(document.ydoc);
+    socket.connectHandler(document.ydoc);
     document.ydoc.on("update", socket.distributeDocumentUpdate);
     
     return () => {
-      socket.disconnect();
+      socket.disconnectHandler();
       document.ydoc.off("update", socket.distributeDocumentUpdate);
     };
   }, []);
