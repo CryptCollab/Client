@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface UserLoginDataState {
     isUserLoggedIn: boolean;
-    userData: {}
+    userData: object
 }
 
 
@@ -17,7 +17,7 @@ const userLoginDataSlice = createSlice({
     reducers: {
         //actions
         //login 
-        login(state, action: PayloadAction<{}>) {
+        login(state, action: PayloadAction<object>) {
             state.isUserLoggedIn = true;
             state.userData = action.payload;
         },

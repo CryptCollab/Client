@@ -22,7 +22,8 @@ export default function Navbar() {
         return (
             <div>
                 <Link to="/login">Login</Link><br />
-                <Link to="/register">Register</Link>
+                <Link to="/register">Register</Link><br/>
+                <Link to="/document">Text Editor</Link>
             </div>
         )
     }
