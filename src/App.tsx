@@ -7,7 +7,6 @@ import DashBoard from "./pages/DashBoard";
 import Tiptap from "./pages/TextEditor";
 import { CryptoUtils } from "./utils/crypto";
 import { socketHandlers } from "./utils/socket";
-import { useEffect, useState } from "react";
 
 export const cryptoUtils = new CryptoUtils();
 export const socket = new socketHandlers("http://localhost:8080");
@@ -25,7 +24,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/document" element={<Tiptap />} />
+      <Route path="/document" element={<Tiptap />}  />
     </Routes>
   );
 }

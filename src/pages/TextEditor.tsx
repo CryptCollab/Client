@@ -3,19 +3,21 @@ import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import { collabDocument } from "../utils/yjs";
 import { useEffect } from "react";
-import { fireEventHandlers, removeEventHandlers } from "../utils/eventHandler";
+import { socket } from "../App";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
 
 export const document = new collabDocument();
-document.setAwarenessState();
+
 
 const Tiptap = () => {
   useEffect(() => {
-    fireEventHandlers(document);
+    socket.connect(document.ydoc);
+    document.ydoc.on("update", socket.distributeDocumentUpdate);
     
     return () => {
-      removeEventHandlers(document);
+      socket.disconnect();
+      document.ydoc.off("update", socket.distributeDocumentUpdate);
     };
   }, []);
   const editor = useEditor({
@@ -29,9 +31,9 @@ const Tiptap = () => {
         document: document.ydoc,
         
       }),
-      // CollaborationCursor.configure({
-      //   user: cursorUser,
-      // }),
+      CollaborationCursor.configure({
+        provider: socket,
+      }),
 
     ],
     //content: "Hello World",

@@ -18,9 +18,9 @@ export const fireEventHandlers = (document: collabDocument) => {
     socket.processFirstMessageFromGroupLeader
   );
   socketInstance.on("groupMessage", socket.processGroupMessage);
-  socketInstance.on("awarenessUpdate", document.applyAwarenessUpdate)
-  document.ydoc.on("update", socket.distributeDocumentUpdate);
-  document.awareness.on("update", socket.distributeAwarenessUpdate)
+  socketInstance.on("awarenessUpdate", socket.applyAwarenessUpdate)
+  
+  socket.awareness.on("update", socket.distributeAwarenessUpdate)
 }
 
 
@@ -40,7 +40,7 @@ export const removeEventHandlers = (document: collabDocument) => {
     socket.processFirstMessageFromGroupLeader
   );
   socketInstance.off("groupMessage", socket.processGroupMessage);
-  socketInstance.off("awarenessUpdate", document.applyAwarenessUpdate)
+  socketInstance.off("awarenessUpdate", socket.applyAwarenessUpdate)
   document.ydoc.off("update", socket.distributeDocumentUpdate);
-  document.awareness.off("update", socket.distributeAwarenessUpdate)
-}
+  socket.awareness.off("update", socket.distributeAwarenessUpdate)
+ }

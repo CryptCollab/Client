@@ -13,7 +13,7 @@ export class CryptoUtils {
     sodium!: SodiumPlus;
     x3dh!: X3DH;
     groupKeyStore!: GroupKeyStore;
-    constructor() {
+     constructor() {
         this.x3dh = new X3DH();
     }
 
