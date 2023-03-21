@@ -1,6 +1,6 @@
 
 import { useAppDispatch, useAppSelector } from "./reduxHooks";
-import { login, logout } from "../features/userData/userLoginData-slice.ts";
+import { login, logout } from "../features/userData/userLoginData-slice";
 
 
 
@@ -9,8 +9,8 @@ export default function useAuth() {
     const dispatch = useAppDispatch();
     const user = {
         ...userLoginData,
-        loginUser: (userData: {}): void => dispatch(login(userData)),
-        logoutUser: (): void => dispatch(logout())
+        loginUser: (userData: object): void => {dispatch(login(userData))},
+        logoutUser: (): void => {dispatch(logout())}
     }
     return user;
 }
