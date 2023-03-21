@@ -24,10 +24,9 @@ function Home() {
 
 
 
-  return (<div>
-    <p>Home(Landing) Page</p>
-    <Navbar />
-  </div>)
+  return (   
+    <Navbar/>
+  )
 }
 
 export default Home
