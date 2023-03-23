@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
+
 
 export default function Navbar() {
     const userLoginData = useAuth();
@@ -17,36 +17,31 @@ export default function Navbar() {
     }
         
     if (userLoginData.isUserLoggedIn) {
-        return (
-            <Box sx={{ flexGrow: 1 }}>    
-            <CssBaseline/>   
+        return (             
             <AppBar position="static">
-                <Toolbar >          
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Home
-                </Typography>          
-                <Button href="/dashboard" color="inherit">Dashboard</Button>
-                <Button href="/" color="inherit">Logout</Button>
+                <Toolbar sx={{ flexWrap: 'wrap' }}>       
+                    <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+                        Home
+                    </Typography>          
+                <Button href="/dashboard" color="inherit" >Dashboard</Button>
+                <Button href="/" color="inherit" >Logout</Button>
                 </Toolbar>
-            </AppBar>
-            </Box>
+            </AppBar>           
         )
     }
     else{
-        return (
-            <Box sx={{ flexGrow: 1 }}>    
-            <CssBaseline/>   
-            <AppBar position="static">
-                <Toolbar>          
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Home
-                </Typography>          
-                <Button href="/login" color="inherit">Login</Button>
-                <Button href="/register" color="inherit">Register</Button>
+        return (           
+            <AppBar position="static" >
+                <Toolbar sx={{ flexWrap: 'wrap' }}>       
+                    <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+                        Home
+                    </Typography>                   
+                    <Button href="/login" color="inherit" >Login</Button>
+                    <Button href="/register" color="inherit" >Register</Button>                    
                 </Toolbar>
-            </AppBar>
-            </Box>
+            </AppBar>            
         )
     } 
+
 
 }
