@@ -18,6 +18,7 @@ import { UserLoginDataState } from '../features/userData/userLoginData-slice';
 
 const theme = createTheme();
 
+//TODO add better error mesaage display
 export default function Login() {
   const user = useAuth();
   const [searchParams] = useSearchParams();

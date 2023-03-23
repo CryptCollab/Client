@@ -19,6 +19,7 @@ import useAuth from '../hooks/useAuth';
 
 const theme = createTheme();
 
+//TODO add better error mesaage display
 export default function SignUp() {
 
   const navigate = useNavigate();
