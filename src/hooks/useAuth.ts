@@ -9,7 +9,8 @@ export default function useAuth() {
     const dispatch = useAppDispatch();
     const user = {
         ...userLoginData,
-        loginUser: (userData: {}): void => dispatch(login(userData)),
+        isUserLoggedIn: () => userLoginData.userData !== null,
+        loginUser: (userData: UserLoginDataState): void => dispatch(login(userData)),
         logoutUser: (): void => dispatch(logout())
     }
     return user;

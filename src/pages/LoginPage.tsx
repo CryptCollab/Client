@@ -13,42 +13,59 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios, { AxiosError } from 'axios';
+import { UserLoginDataState } from '../features/userData/userLoginData-slice';
 
 const theme = createTheme();
 
 export default function Login() {
-    const user = useAuth();
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+  const user = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-    //used in error attribute in TextField
-    //setIsError not yet added
-    const [isError,setIsError] = React.useState(false);
+  //used in error attribute in TextField
+  //setIsError not yet added
+  const [isError, setIsError] = React.useState("");
 
-    // login user and store user data in redux store
-    // redirect to requested page
-    const handleLoginClick = () => {
-        user.loginUser({});
-        const redirectURL: string = searchParams.get('redirectURL') ?? "/dashboard";
-        console.log(redirectURL)
-        navigate(redirectURL)
+  // login user and store user data in redux store
+  // redirect to requested page
+  const handleLoginClick: React.FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+    try {
+      const userData = await axios.post<UserLoginDataState>(
+        "/api/login",
+        {
+          "email": event.currentTarget.email.value,
+          "password": event.currentTarget.passwordInputBox.value
+        }, {
+        withCredentials: true
+      })
+      console.log(userData.data)
+      user.loginUser(userData.data);
+      const redirectURL: string = searchParams.get('redirectURL') ?? "/dashboard";
+      navigate(redirectURL)
     }
-    
-    /*return (
-        <div className={styles.main}>
-            Welcome back! Please login to continue<br />
-            <form onSubmit={event => event.preventDefault()}>
-                <label htmlFor="usernameInputBox">Username: </label>
-                <input id="usernameInputBox" type="text" name="usernameInputBox" /><br />
-                <label htmlFor="passwordInputBox">Password: </label>
-                <input id="passwordInputBox" type="password" name="passwordInputBox" /><br />
-                <input id="submitButton" onClick={handleLoginClick} type="submit" value="Login" /><br />
-            </form><br />
-            <span> New User? Sign up <Link to="/register">here</Link></span>
-        </div>
-    )*/
+    catch (error: any) {
+      console.error(error);
+      setIsError(error?.response?.data);
+    }
+  }
 
-    return (
+  /*return (
+      <div className={styles.main}>
+          Welcome back! Please login to continue<br />
+          <form onSubmit={event => event.preventDefault()}>
+              <label htmlFor="usernameInputBox">Username: </label>
+              <input id="usernameInputBox" type="text" name="usernameInputBox" /><br />
+              <label htmlFor="passwordInputBox">Password: </label>
+              <input id="passwordInputBox" type="password" name="passwordInputBox" /><br />
+              <input id="submitButton" onClick={handleLoginClick} type="submit" value="Login" /><br />
+          </form><br />
+          <span> New User? Sign up <Link to="/register">here</Link></span>
+      </div>
+  )*/
+
+  return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -68,19 +85,19 @@ export default function Login() {
           </Typography>
           <Box component="form" onSubmit={handleLoginClick} noValidate sx={{ mt: 1 }}>
             <TextField
-              error = {isError}
+              error={isError !== ""}
               margin="normal"
               required
               fullWidth
               id="email"
               label="Email Address"
-              name="email"   
-              autoComplete="email"           
+              name="email"
+              autoComplete="email"
               autoFocus
-              helperText = {isError ? ("Incorrect Login Credentials"):("")}
+              helperText={isError}
             />
             <TextField
-              error = {isError}
+              error={isError !== ""}
               margin="normal"
               required
               fullWidth
@@ -89,9 +106,9 @@ export default function Login() {
               type="password"
               id="passwordInputBox"
               autoComplete="current-password"
-              helperText = {isError ? ("Incorrect Login Credentials"):("")}
+              helperText={isError}
             />
-           
+
             <Button
               type="submit"
               fullWidth
@@ -100,15 +117,15 @@ export default function Login() {
             >
               Log In
             </Button>
-            <Grid container justifyContent="flex-end">             
+            <Grid container justifyContent="flex-end">
               <Grid item>
                 <LinkMUI href="/register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </LinkMUI>
-              </Grid>              
+              </Grid>
             </Grid>
           </Box>
-        </Box>        
+        </Box>
       </Container>
     </ThemeProvider>
   );

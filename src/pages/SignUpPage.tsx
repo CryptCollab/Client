@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useRouteError, useSearchParams } from 'react-router-dom'
 import styles from '../styles/app.module.css'
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
@@ -14,33 +14,38 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+import useAuth from '../hooks/useAuth';
 
 const theme = createTheme();
 
 export default function SignUp() {
-    /*return (
-        <div className={styles.main}>
-            Registration Page<br />
-            <form>
-                <label htmlFor="usernameInputBox">Username: </label>
-                <input id="usernameInputBox" type="text" name="usernameInputBox" /><br />
-                <label htmlFor="passwordInputBox">Password: </label>
-                <input id="passwordInputBox" type="password" name="passwordInputBox" /><br />
-                <input id="submitButton" type="submit" value="Login" /><br />
-            </form><br />
-            <span>Already registered? Login <Link to="/login">here</Link></span>
 
-        </div>
-    )*/
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-          email: data.get('email'),
-          password: data.get('password'),
-        });
-    };
-    return (
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const user = useAuth();
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+    try {
+      const userData = await axios.post('/api/register', {
+        "username": event.currentTarget.username.value,
+        "email": event.currentTarget.email.value,
+        "password": event.currentTarget.password.value
+      }, {
+        withCredentials: true
+      })
+
+      user.loginUser(userData.data);
+      const redirectURL: string = searchParams.get('redirectURL') ?? "/dashboard";
+      navigate(redirectURL)
+    }
+    catch (error) {
+      console.error(error);
+    }
+
+  };
+  return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -59,7 +64,7 @@ export default function SignUp() {
             Sign up
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>              
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -90,7 +95,7 @@ export default function SignUp() {
                   id="password"
                   autoComplete="new-password"
                 />
-              </Grid>              
+              </Grid>
             </Grid>
             <Button
               type="submit"
@@ -108,7 +113,7 @@ export default function SignUp() {
               </Grid>
             </Grid>
           </Box>
-        </Box>        
+        </Box>
       </Container>
     </ThemeProvider>
   );

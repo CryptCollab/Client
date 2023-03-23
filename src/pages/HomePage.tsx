@@ -9,17 +9,17 @@ function Home() {
   /**
    * Socket.io demo
    */
-  const socket = io('http://localhost:8000');
+  // const socket = io('http://localhost:8000');
 
-  socket.on('reply', function (data: any) { console.log("reply: ", data) });
+  // socket.on('reply', function (data: any) { console.log("reply: ", data) });
 
-  socket.on('connect', function () {
-    console.log('connected')
-    console.log("msg: What did the ocean say to the beach ?")
-    socket.emit('msg', "What did the ocean say to the beach ?");
-  });
+  // socket.on('connect', function () {
+  //   console.log('connected')
+  //   console.log("msg: What did the ocean say to the beach ?")
+  //   socket.emit('msg', "What did the ocean say to the beach ?");
+  // });
 
-  socket.on('disconnect', function () { console.log('disconnected') });
+  // socket.on('disconnect', function () { console.log('disconnected') });
 
 
 
