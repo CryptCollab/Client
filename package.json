@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@fortawesome/fontawesome-svg-core": "^6.3.0",
+    "@fortawesome/free-regular-svg-icons": "^6.3.0",
+    "@fortawesome/free-solid-svg-icons": "^6.3.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@reduxjs/toolkit": "^1.9.2",
     "@tiptap/extension-collaboration": "^2.0.0-beta.220",
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.220",

@@ -70,7 +70,9 @@ export class DefaultSessionKeyManager implements SessionKeyManagerInterface {
             this.sodium = sodium;
         } else {
             // Just do this up-front.
-            this.getSodium().then(() => { });
+            this.getSodium().then(() => {
+                // Do nothing
+                });
         }
         this.sessions = new Map<string, SessionKeys>();
         this.assocData = new Map<string, string>();
@@ -92,7 +94,7 @@ export class DefaultSessionKeyManager implements SessionKeyManagerInterface {
 
     async listSessionIds(): Promise<string[]> {
         const ids: string[] = [];
-        for (let i in this.sessions) {
+        for (const i in this.sessions) {
             ids.push(i);
         }
         return ids;
@@ -229,7 +231,8 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
             this.sodium = sodium;
         } else {
             // Just do this up-front.
-            this.getSodium().then(() => {
+            this.getSodium().then(() => { 
+                console.log('Sodium initialized.');
             });
         }
         if (sk) {
@@ -324,7 +327,6 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
      * This only returns the X25519 keys. It doesn't include the Ed25519 signature.
      */
     async getPreKeypair(): Promise<PreKeyPair> {
-        const sodium = await this.getSodium();
         if (this.preKey == undefined) {
             this.preKey = await this.generatePreKeypair();
         }
@@ -356,7 +358,7 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
      */
     async persistOneTimeKeys(bundle: Keypair[]): Promise<void> {
         const sodium = await this.getSodium();
-        for (let kp of bundle) {
+        for (const kp of bundle) {
             this.oneTimeKeys[await sodium.sodium_bin2hex(kp.publicKey.getBuffer())] = kp;
         }
     }
@@ -364,7 +366,7 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
     /**
      * Save a given identity keypair (Ed25519) to the filesystem.
      *
-     * @param {Ed25519SecretKey} identitySecret
+     * @param {IdentityKeyPair} identityKey 
      * @param {Store} keyStore
      */
     async saveIdentityKeypair(identityKeypair: IdentityKeyPair, keyStore: Store): Promise<void> {

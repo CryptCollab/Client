@@ -27,7 +27,7 @@ export class socketHandlers {
         this.setAwarenessState();
     }
     onConnect = async () => {
-        console.log("Connected to server with id: ", this.socketInstance.id);
+        //console.log("Connected to server with id: ", this.socketInstance.id);
         await cryptoUtils.setIdentity(this.socketInstance.id);
         this.isConnected = true;
     }
@@ -38,7 +38,7 @@ export class socketHandlers {
     }
 
     processUsersInRoom = async (users: any) => {
-        console.log("Users in room", users);
+        //console.log("Users in room", users);
         if (users === 1) {
             await cryptoUtils.generateAndsaveIdentityKeysToIDB();
             cryptoUtils.groupKeyStore = {
@@ -94,7 +94,7 @@ export class socketHandlers {
     }
 
     processGroupMessage = async (groupMessage: string) => {
-        //console.log("Received group message");
+        console.log("Received group message");
         const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
             groupMessage
         );
@@ -113,7 +113,7 @@ export class socketHandlers {
 
     distributeAwarenessUpdate = (changeObject: { added: []; updated: []; removed: []; }, origin: any) => {
         if (origin === null) {
-            console.log("Not distributing awareness update");
+            //console.log("Not distributing awareness update");
             return;
         }
         const { added, updated, removed } = changeObject;
@@ -123,14 +123,16 @@ export class socketHandlers {
     }
 
     setAwarenessState = () => {
+        const colorHexCode = '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).slice(0,6)
         this.awareness.setLocalStateField('user', {
             name: "User " + Math.floor(Math.random() * 100),
-            color: '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16)
+            color: colorHexCode
         })
+        console.log(colorHexCode)
     }
     applyAwarenessUpdate = async (update: string) => {
         const decodedAwarenessUpdate = toUint8Array(update);
-        console.log("Applying awareness update")
+        //console.log("Applying awareness update from server")
         awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
     }
 
@@ -164,112 +166,3 @@ export class socketHandlers {
 
 }
 
-
-
-// export const socket = io('http://localhost:8080', {
-//     autoConnect: false,
-//     transports: ['websocket'],
-// });
-
-// export async function onConnect() {
-//     console.log("Connected to server with id: ", socket.id);
-//     await setIdentity(socket.id);
-// }
-
-// export async function onDisconnect() {
-//     await destroyIdentityKeyStore();
-//     //console.log("Disconnected from server");
-// }
-
-// export async function processUsersInRoom(users: any) {
-//     console.log("Users in room", users);
-//     if (users === 1) {
-//         await generateAndsaveIdentityKeysToIDB();
-//         groupKeyStore = {
-//             nonce: await returnHexEncodedNonce(),
-//             groupKey: await returnHexEncodedGroupKey(),
-//         };
-//     } else {
-//         const preKeyBundle: InitServerInfo = await generatePreKeyBundle();
-//         //console.log("Prekey bundle generated and sent to server");
-//         socket.emit("preKeyBundle", preKeyBundle, socket.id);
-//     }
-// }
-
-
-// export async function processPreKeyBundleForHandshake(
-//     preKeyBundle: InitServerInfo,
-//     participant: string
-// ) {
-//     //console.log("Received preKeyBundle from server");
-//     const firstGroupMessage = await encryptGroupMessage(
-//         groupKeyStore,
-//         "Welcome to the document!!"
-//     );
-//     const message = groupKeyStore.nonce + groupKeyStore.groupKey;
-//     const firstMessageBundle: InitSenderInfo =
-//         await establishSharedKeyAndEncryptFirstMessage(
-//             participant,
-//             preKeyBundle,
-//             message
-//         );
-//     socket.emit(
-//         "firstMessage",
-//         firstMessageBundle,
-//         participant,
-//         firstGroupMessage
-//     );
-// }
-
-
-// export async function processFirstMessage(
-//     firstMessageBundle: InitSenderInfo,
-//     firstGroupMessage: string
-// ) {
-//     //console.log(`Received first message from `, firstMessageBundle);
-//     const decryptedData = await establishSharedKeyAndDecryptFirstMessage(
-//         firstMessageBundle
-//     );
-//     groupKeyStore = {
-//         nonce: decryptedData.toString().slice(0, 48),
-//         groupKey: decryptedData.toString().slice(48),
-//     };
-//     const decryptedGroupMessage = await decryptGroupMessage(
-//         groupKeyStore,
-//         firstGroupMessage
-//     );
-//     console.log(decryptedGroupMessage);
-//     const firstPeerMessage = await encryptGroupMessage(
-//         groupKeyStore,
-//         "Thanks for letting me join the document!!"
-//     );
-//     socket.emit("groupMessage", firstPeerMessage);
-//     return groupKeyStore;
-// }
-
-// export async function distributeUpdate(update: any, origin: any) {
-//     if (origin === null) {
-//         //console.log("Not distributing update");
-//         return;
-//     }
-//     //console.log("Distributing update");
-//     const encryptedUpdate = await encryptGroupMessage(groupKeyStore, fromUint8Array(update));
-//     socket.emit("documentUpdate", encryptedUpdate);
-// }
-
-// export async function decryptUpdate(update: string) {
-//     const decryptedUpdate = await decryptGroupMessage(groupKeyStore, update);
-//     return decryptedUpdate;
-// }
-
-
-
-
-// export async function processGroupMessage(groupMessage: string) {
-//     //console.log("Received group message");
-//     const decryptedGroupMessage = await decryptGroupMessage(
-//         groupKeyStore,
-//         groupMessage
-//     );
-//     console.log(decryptedGroupMessage);
-// }

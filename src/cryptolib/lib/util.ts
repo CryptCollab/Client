@@ -19,12 +19,12 @@ export type Keypair = {secretKey: X25519SecretKey, publicKey: X25519PublicKey};
  */
 export function concat(...args: Uint8Array[]): Uint8Array {
     let length = 0;
-    for (let arg of args) {
+    for (const arg of args) {
         length += arg.length;
     }
     const output = new Uint8Array(length);
     length = 0;
-    for (let arg of args) {
+    for (const arg of args) {
         output.set(arg, length);
         length += arg.length;
     }
@@ -51,7 +51,7 @@ export async function generateKeyPair(): Promise<Keypair> {
  * @param {number} preKeyCount
  * @returns {Keypair[]}
  */
-export async function generateBundle(preKeyCount: number = 100): Promise<Keypair[]> {
+export async function generateBundle(preKeyCount: number): Promise<Keypair[]> {
     const bundle: Keypair[] = [];
     for (let i = 0; i < preKeyCount; i++) {
         bundle.push(await generateKeyPair());
@@ -78,7 +78,7 @@ export async function preHashPublicKeysForSigning(publicKeys): Promise<Uint8Arra
     ]);
     await sodium.crypto_generichash_update(hashState, pkLen);
     // Next, update the state with each public key
-    for (let pk of publicKeys) {
+    for (const pk of publicKeys) {
         await sodium.crypto_generichash_update(
             hashState,
             pk.getBuffer()
