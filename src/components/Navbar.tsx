@@ -34,6 +34,7 @@ export default function Navbar() {
                             Home
                         </Typography>
                         <Button href="/dashboard" color="inherit">Dashboard</Button>
+                        <Button href="/document" color="inherit">Document</Button>
                         <Button onClick={handleLogout} color="inherit">Logout</Button>
                     </Toolbar>
                 </AppBar>
@@ -56,5 +57,6 @@ export default function Navbar() {
             </Box>
         )
     }
+
 
 }
