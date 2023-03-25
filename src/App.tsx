@@ -4,7 +4,6 @@ import HomePage from "./pages/HomePage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import SignUpPage from "./pages/SignUpPage";
 import DashBoard from "./pages/DashBoard";
-import useAxios from "./hooks/useAxios";
 import PersistLogin from "./components/PersistLogin";
 import Tiptap from "./pages/TextEditor";
 import { CryptoUtils } from "./utils/crypto";
