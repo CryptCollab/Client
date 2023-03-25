@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth'
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -34,7 +34,7 @@ export default function Navbar() {
                             Home
                         </Typography>
                         <Button href="/dashboard" color="inherit">Dashboard</Button>
-                        <Button href="/document" color="inherit">Document</Button>
+                        
                         <Button onClick={handleLogout} color="inherit">Logout</Button>
                     </Toolbar>
                 </AppBar>
@@ -52,6 +52,7 @@ export default function Navbar() {
                         </Typography>
                         <Button href="/login" color="inherit">Login</Button>
                         <Button href="/register" color="inherit">Register</Button>
+                        <Button href="/document" color="inherit">Document</Button>
                     </Toolbar>
                 </AppBar>
             </Box>
