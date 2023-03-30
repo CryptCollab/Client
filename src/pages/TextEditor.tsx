@@ -11,35 +11,35 @@ export const document = new collabDocument();
 
 
 const Tiptap = () => {
-  useEffect(() => {
-    socket.connectHandler(document.ydoc);
-    document.ydoc.on("update", socket.distributeDocumentUpdate);
+	useEffect(() => {
+		socket.connectHandler(document.ydoc);
+		document.ydoc.on("update", socket.distributeDocumentUpdate);
     
-    return () => {
-      socket.disconnectHandler();
-      document.ydoc.off("update", socket.distributeDocumentUpdate);
-    };
-  }, []);
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        // The Collaboration extension comes with its own history handling
-        history: false,
-      }),
-      // Register the document with Tiptap
-      Collaboration.configure({
-        document: document.ydoc,
+		return () => {
+			socket.disconnectHandler();
+			document.ydoc.off("update", socket.distributeDocumentUpdate);
+		};
+	}, []);
+	const editor = useEditor({
+		extensions: [
+			StarterKit.configure({
+				// The Collaboration extension comes with its own history handling
+				history: false,
+			}),
+			// Register the document with Tiptap
+			Collaboration.configure({
+				document: document.ydoc,
         
-      }),
-      CollaborationCursor.configure({
-        provider: socket,
-      }),
+			}),
+			CollaborationCursor.configure({
+				provider: socket,
+			}),
 
-    ],
-    //content: "Hello World",
-  });
+		],
+		//content: "Hello World",
+	});
 
-  return <EditorContent editor={editor} />;
+	return <EditorContent editor={editor} />;
 };
 
 export default Tiptap;

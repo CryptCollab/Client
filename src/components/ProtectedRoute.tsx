@@ -1,7 +1,4 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { UserLoginDataState } from "../features/userData/userLoginData-slice";
 import useAuth from "../hooks/useAuth";
 type Props = {
     children: JSX.Element
@@ -14,14 +11,14 @@ type Props = {
  */
 export const ProtectedRoute = ({ children }: Props) => {
 
-    const user = useAuth();
+	const user = useAuth();
 
 
-    if (!user.isUserLoggedIn()) {
-        // user is not authenticated
-        return <Navigate to="/login" replace />;
-    } else {
-        return children;
-    }
+	if (!user.isUserLoggedIn()) {
+		// user is not authenticated
+		return <Navigate to="/login" replace />;
+	} else {
+		return children;
+	}
 
 };
