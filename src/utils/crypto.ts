@@ -1,11 +1,11 @@
-import { SodiumPlus, Ed25519PublicKey,  CryptographyKey } from "sodium-plus";
+import { SodiumPlus, Ed25519PublicKey, CryptographyKey } from "sodium-plus";
 import { X3DH, InitServerInfo, InitSenderInfo, SignedBundle, IdentityKeyPair } from "../cryptolib/x3dh";
 import { Buffer } from "buffer";
 
 
 export type GroupKeyStore = {
-    groupKey: string,
-    nonce: string,
+	groupKey: string,
+	nonce: string,
 }
 export class CryptoUtils {
 	preKeyBundleFromParticipant!: InitServerInfo;
@@ -91,6 +91,39 @@ export class CryptoUtils {
 		const identityKeys: IdentityKeyPair = await this.x3dh.identityKeyManager.getIdentityKeypair(this.x3dh.keyStore);
 		return identityKeys;
 	};
+
+	generateAndSaveGroupKeyStoreToIDB = async () => {
+		if (!this.x3dh.keyStore)
+			await this.x3dh.initKeyStore();
+		this.groupKeyStore = {
+			nonce: await this.returnHexEncodedNonce(),
+			groupKey: await this.returnHexEncodedGroupKey(),
+		};
+		await this.x3dh.keyStore.set("groupKeyStore", this.groupKeyStore);
+		console.log("Group Key Store generated and saved to IDB")
+	};
+
+	saveGroupKeyStoreToIDB = async (groupKeyStore: GroupKeyStore) => {
+		if (!this.x3dh.keyStore)
+			await this.x3dh.initKeyStore();
+		await this.x3dh.keyStore.set("groupKeyStore", groupKeyStore);
+		console.log("Group Key Store saved to IDB")
+	};
+
+	loadGroupKeyStoreFromIDB = async (): Promise<GroupKeyStore> => {
+		if (!this.x3dh.keyStore) {
+			throw new Error("KeyStore not initialized");
+		}
+		const groupKeyStore: GroupKeyStore = await this.x3dh.keyStore.get("groupKeyStore");
+		console.log("Group Key Store loaded from IDB");
+		return groupKeyStore;
+	};
+
+	generateGroupKeyStoreBundle = async (): Promise<string> => {
+		const groupKeyStore: GroupKeyStore = await this.loadGroupKeyStoreFromIDB();
+		const groupKeyStoreBundle = groupKeyStore.groupKey + groupKeyStore.nonce;
+		return groupKeyStoreBundle;
+	}
 
 	generatePreKeyBundle = async (): Promise<InitServerInfo> => {
 		const identityKeys: IdentityKeyPair = await this.generateAndsaveIdentityKeysToIDB();

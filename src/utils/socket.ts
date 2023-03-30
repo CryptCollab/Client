@@ -41,10 +41,8 @@ export class socketHandlers {
 		console.log("Users in room", users);
 		if (users === 1) {
 			await cryptoUtils.generateAndsaveIdentityKeysToIDB();
-			cryptoUtils.groupKeyStore = {
-				nonce: await cryptoUtils.returnHexEncodedNonce(),
-				groupKey: await cryptoUtils.returnHexEncodedGroupKey(),
-			};
+			await cryptoUtils.generateAndSaveGroupKeyStoreToIDB();
+			
 		} else {
 			const preKeyBundle: InitServerInfo = await cryptoUtils.generatePreKeyBundle();
 			//console.log("Prekey bundle generated and sent to server");
@@ -57,7 +55,7 @@ export class socketHandlers {
 		const firstGroupMessage = await cryptoUtils.encryptGroupMessage(
 			"Welcome to the document!!"
 		);
-		const message = cryptoUtils.groupKeyStore.nonce + cryptoUtils.groupKeyStore.groupKey;
+		const message = await cryptoUtils.generateGroupKeyStoreBundle();
 		const firstMessageBundle: InitSenderInfo =
 			await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
 				participant,
@@ -81,6 +79,7 @@ export class socketHandlers {
 			nonce: decryptedData.toString().slice(0, 48),
 			groupKey: decryptedData.toString().slice(48),
 		};
+		cryptoUtils.saveGroupKeyStoreToIDB(cryptoUtils.groupKeyStore);
 		//console.log(cryptoUtils.groupKeyStore);
 		const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
 			firstGroupMessage
