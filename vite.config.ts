@@ -7,6 +7,7 @@ import rollupNodePolyFill from 'rollup-plugin-polyfill-node'
 export default defineConfig({
   build: {
     watch: {},
+    chunkSizeWarningLimit: 2000,
     outDir: '../Server/public/',
     emptyOutDir: true,
     rollupOptions: {
