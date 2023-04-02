@@ -11,7 +11,7 @@ import { CryptoUtils } from "./utils/crypto";
 import { socketHandlers } from "./utils/socket";
 
 export const cryptoUtils = new CryptoUtils();
-export const socket = new socketHandlers("http://localhost:8080");
+export const socket = new socketHandlers(import.meta.env.VITE_SERVER_BASE_URL);
 export default function App() {
 
 	return (

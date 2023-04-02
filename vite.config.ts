@@ -6,9 +6,6 @@ import rollupNodePolyFill from 'rollup-plugin-polyfill-node'
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    watch: {},
-    chunkSizeWarningLimit: 2000,
-    outDir: '../Server/public/',
     emptyOutDir: true,
     rollupOptions: {
       plugins: [
