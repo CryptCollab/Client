@@ -13,7 +13,7 @@ const privateAxios = axios.create({
 });
 
 
-export default function useProtectedAxios() {
+export default function useAxios() {
 	const user = useAuth();
 	const refresh = useRefreshToken();
 
