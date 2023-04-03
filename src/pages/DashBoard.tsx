@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button, Modal } from "react-bootstrap";
-import { AsyncTypeahead } from "react-bootstrap-typeahead";
+import { AsyncTypeahead, } from "react-bootstrap-typeahead";
 import { useState } from "react";
+import TypeAhead from "../components/TypeAhead";
 
 
 
@@ -33,9 +34,10 @@ export default function DashBoard() {
 		setIsModalOpen(false)
 	}
 	const handleSearch = async (query: string) => {
-		const response = await axios.get<User[]>(`/api/users?query=${query}`)
+		const response = await axios.get<User[]>(`/api/users?user=${query}`)
 		setOptions(response.data)
-		setAreUsersLoading(false)
+		console.log(response.data)
+		setAreUsersLoading(true)
 	}
 	return (<>
 		<div>DashBoard</div>
@@ -46,20 +48,7 @@ export default function DashBoard() {
 				<Modal.Title>Search here</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				<AsyncTypeahead
-					isLoading={areUsersLoading}
-					labelKey="login"
-					id="search"
-					minLength={3}
-					onSearch={handleSearch}
-					options={options}
-					placeholder="Search using email or username..."
-					renderMenuItemChildren={(option) => (
-						<>
-							<span>{(option as User).userName}</span>
-						</>
-					)}
-				/>
+				<TypeAhead />
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant="secondary" onClick={closeModal}>
