@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 import { fromUint8Array, toUint8Array } from "js-base64";
 import { cryptoUtils } from "../App";
 import { InitSenderInfo, InitServerInfo } from "../cryptolib/x3dh";
-import { document } from "../pages/TextEditor";
+import { document } from "../components/TextEditor";
 import * as awarenessProtocol from "y-protocols/awareness.js";
 import { Doc } from "yjs";
 // "undefined" means the URL will be computed from the `window.location` object
@@ -42,7 +42,7 @@ export class socketHandlers {
 		if (users === 1) {
 			await cryptoUtils.generateAndsaveIdentityKeysToIDB();
 			await cryptoUtils.generateAndSaveGroupKeyStoreToIDB();
-			
+
 		} else {
 			const preKeyBundle: InitServerInfo = await cryptoUtils.generatePreKeyBundle();
 			//console.log("Prekey bundle generated and sent to server");

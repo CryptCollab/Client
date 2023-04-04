@@ -9,7 +9,7 @@ import {
 import { Buffer } from "buffer";
 
 let sodium;
-export type Keypair = {secretKey: X25519SecretKey, publicKey: X25519PublicKey};
+export type Keypair = { secretKey: X25519SecretKey, publicKey: X25519PublicKey };
 
 /**
  * Concatenate some number of Uint8Array objects
@@ -56,7 +56,7 @@ export async function generateBundle(preKeyCount = 100): Promise<Keypair[]> {
 	for (let i = 0; i < preKeyCount; i++) {
 		bundle.push(await generateKeyPair());
 	}
-        
+
 	return bundle;
 }
 
