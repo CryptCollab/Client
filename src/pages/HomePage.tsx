@@ -1,5 +1,5 @@
 import * as React from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navigationbar";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
@@ -10,10 +10,11 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-
+import styles from "../styles/app.module.css"
 
 function Home() {  
 
+	console.log(styles.main)
 	const darkTheme = createTheme({
 		palette: {
 			mode: "dark",
@@ -60,6 +61,7 @@ function Home() {
 						gutterBottom
 					>
           CryptCollab
+		  
 					</Typography>        
 				</Container>
       
