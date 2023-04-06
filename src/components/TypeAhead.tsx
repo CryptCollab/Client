@@ -3,19 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import useAxios from '../hooks/useAxios';
-import { Option } from 'react-bootstrap-typeahead/types/types';
-import { Button } from 'react-bootstrap';
-
-interface Item {
-    avatar_url: string;
-    id: string;
-    login: string;
-}
-
-interface Response {
-    items: Item[];
-}
-
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 
 interface User {
     userName: string;
@@ -23,36 +11,39 @@ interface User {
     userId: string;
 }
 
-interface Props{
-    selected: any[];
-    setSelected: (selected: any[]) => void;
+export interface TypeAheadProps {
+    selectedUserList: any[];
+    setSelectedUserList: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
+const TypeAhead: React.FC<TypeAheadProps> = ({ selectedUserList, setSelectedUserList }) => {
 
-const TypeAhead: React.FC<Props> = ({selected, setSelected}) => {
     const [areUsersLoading, setAreUsersLoading] = useState(false);
-    const [options, setOptions] = useState<User[]>([]);
+    const [fetchedUserList, setFetchedUserList] = useState<User[]>([]);
     const axios = useAxios();
 
     const handleSearch = async (query: string) => {
         setAreUsersLoading(true);
         const response = await axios.get<User[]>(`/api/users?user=${query}`)
-        setOptions(response.data);
+        setFetchedUserList(response.data);
         setAreUsersLoading(false);
     }
+    const filterBy = (option: any) => !selectedUserList.includes(option);
+
     return (
         <AsyncTypeahead
-            filterBy={() => true}
+            filterBy={filterBy}
             id="async-example"
             isLoading={areUsersLoading}
             labelKey="userName"
+            key="userId"
+            useCache
             minLength={2}
             onSearch={handleSearch}
-            // selected={selected}
-            onChange={setSelected}
-            options={options}
+            onChange={setSelectedUserList}
+            options={fetchedUserList}
             multiple
-            placeholder="Search for a Github user..."
+            placeholder="Search by username or email..."
             renderMenuItemChildren={(option: any) => (
                 <>
                     <span>{option.userName} • {option.email}</span>
@@ -62,6 +53,5 @@ const TypeAhead: React.FC<Props> = ({selected, setSelected}) => {
         />
     );
 };
-
 
 export default TypeAhead;
