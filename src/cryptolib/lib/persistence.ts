@@ -324,7 +324,6 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
      * This only returns the X25519 keys. It doesn't include the Ed25519 signature.
      */
 	async getPreKeypair(): Promise<PreKeyPair> {
-		const sodium = await this.getSodium();
 		if (this.preKey == undefined) {
 			this.preKey = await this.generatePreKeypair();
 		}
@@ -340,11 +339,13 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
 	async loadIdentityKeypair(keyStore: Store): Promise<IdentityKeyPair> {
 		const sodium = await this.getSodium();
 		await keyStore.init();
+		const identityString = await this.getMyIdentityString();
+		console.log(identityString)
 		const sk = new Ed25519SecretKey(
-			await sodium.sodium_hex2bin(await keyStore.get("identitySecret"))
+			await sodium.sodium_hex2bin(await keyStore.get(identityString+"identitySecret"))
 		);
 		const pk = new Ed25519PublicKey(
-			await sodium.sodium_hex2bin(await keyStore.get("identityPublic"))
+			await sodium.sodium_hex2bin(await keyStore.get(identityString+"identityPublic"))
 		);
 		return { identitySecret: sk, identityPublic: pk };
 	}
@@ -372,9 +373,10 @@ export class DefaultIdentityKeyManager implements IdentityKeyManagerInterface {
 		if (!keyStore) {
 			console.log("No key store provided, not saving identity keypair.");
 		}
+		const identityString = await this.getMyIdentityString();
 		await keyStore.init();
-		await keyStore.set("identitySecret", await sodium.sodium_bin2hex(identityKeypair.identitySecret.getBuffer()));
-		await keyStore.set("identityPublic", await sodium.sodium_bin2hex(identityKeypair.identityPublic.getBuffer()));
+		await keyStore.set(identityString+"identitySecret", await sodium.sodium_bin2hex(identityKeypair.identitySecret.getBuffer()));
+		await keyStore.set(identityString+"identityPublic", await sodium.sodium_bin2hex(identityKeypair.identityPublic.getBuffer()));
 	}
 
 

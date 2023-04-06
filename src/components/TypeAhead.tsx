@@ -47,10 +47,15 @@ const TypeAhead: React.FC<TypeAheadProps> = ({ selectedUserList, setSelectedUser
             renderMenuItemChildren={(option: any) => (
                 <>
                     <span>{option.userName} • {option.email}</span>
+                    {/* <Button variant = "secondary" >Invite</Button> */}
                 </>
             )}
         />
     );
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01bf715 (sending document invites implemented successfully)
 export default TypeAhead;

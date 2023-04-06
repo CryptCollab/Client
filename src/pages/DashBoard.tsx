@@ -25,8 +25,7 @@ export default function DashBoard() {
 		const data = await protectedAxios.post("/api/document", {
 			userID: "01GWP2QD2CB59BDDT76JWQB0SG",
 		});
-		console.log(data.data);
-		navigate("/document/" + data.data);
+		navigate("/document/" + data.data,{replace: true, state: {documentID: data.data}});
 	};
 
 
@@ -41,8 +40,7 @@ export default function DashBoard() {
 	return (<>
 		<div>DashBoard</div>
 		<button onClick={createDocument}>Create Document</button>
-		<Button variant="primary" onClick={openInviteModal}> Invite Users </Button>
-		<UserInvitieModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} selectedUserList={selectedUsers} setSelectedUserList={setSelectedUsers} />
+		
 	</>
 	);
 }
