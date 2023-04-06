@@ -10,7 +10,7 @@ import TypeAhead from "../components/TypeAhead";
 import { useLocation } from "react-router-dom";
 import { CryptoUtils } from "../utils/crypto";
 import { cryptoUtils } from "../App";
-import { InitServerInfo } from "../cryptolib/x3dh";
+import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import UserInviteModal from "../components/UserInviteModal";
 
@@ -54,13 +54,38 @@ export default function Document() {
     useState<DocumentMetaData | null>(null);
   const axios = useAxios();
   const { state } = useLocation();
-  const { documentID } = state;
+  const { documentID, joinedDocument } = state;
+
   const openInviteModal = () => {
     setIsModalOpen(true);
   };
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+
+
+
+  const handleDocumentJoin = async (documentInvite: any) => {
+    const { documentID, participantID, leaderID, preKeyBundle } = documentInvite;
+    const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
+    console.log(parsedPreKeyBundle);
+    const firstMessageFromHandshake = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(parsedPreKeyBundle);
+    cryptoUtils.groupKeyStore = {
+			nonce: firstMessageFromHandshake.toString().slice(0, 48),
+			groupKey: firstMessageFromHandshake.toString().slice(48),
+    };
+    await cryptoUtils.saveGroupKeyStoreToIDB(cryptoUtils.groupKeyStore);
+    console.log(cryptoUtils.groupKeyStore);
+  }
+
+  /**
+   * This function is called when the user clicks on the invite button.
+   * It sends a request to the server to get the prekeybundles of the selected users.
+   * It then establishes a shared key with each of the selected users and encrypts the group key with the shared key.
+   * It then sends a request to the server to send the encrypted group key to the selected users.
+   * The server then stores the encrypted group key in the database.
+   */
   const handleInvite = async () => {
     const selectedUsers = selectedUserList as User[];
     const participantIDs: string[] = selectedUsers.map((user) => user.userID);
@@ -113,6 +138,13 @@ export default function Document() {
     };
     getDocumentMetaData();
   }, []);
+
+  if (joinedDocument) {
+    const { documentInvite } = state;
+    handleDocumentJoin(documentInvite);
+
+
+  }
 
   return (
     <div className={styles.root}>
