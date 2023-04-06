@@ -14,6 +14,8 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { UserLoginDataState } from "../features/userData/userLoginData-slice";
 import useAxios from "../hooks/useAxios";
+import { cryptoUtils } from "../App";
+import { sendPreKeyBundleToServer } from "../utils/networkUtils";
 
 const theme = createTheme();
 
@@ -35,7 +37,7 @@ export default function Login() {
   const handleLoginClick: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     try {
-      const userData = await axios.post<UserLoginDataState>(
+      const loginResponse = await axios.post<UserLoginDataState>(
         "/api/login",
         {
           "email": event.currentTarget.email.value,
@@ -43,8 +45,9 @@ export default function Login() {
         }, {
         withCredentials: true
       });
-      console.log(userData.data);
-      user.loginUser(userData.data);
+      console.log(loginResponse.data);
+      sendPreKeyBundleToServer(loginResponse.data, axios);
+      user.loginUser(loginResponse.data);
       const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
       navigate(redirectURL);
     }

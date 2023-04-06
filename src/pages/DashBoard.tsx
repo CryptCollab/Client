@@ -18,8 +18,7 @@ export default function DashBoard() {
 		const data = await protectedAxios.post("/api/document", {
 			userID: "01GWP2QD2CB59BDDT76JWQB0SG",
 		});
-		console.log(data.data);
-		navigate("/document/" + data.data);
+		navigate("/document/" + data.data,{replace: true, state: {documentID: data.data}});
 	};
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,20 +40,7 @@ export default function DashBoard() {
 	return (<>
 		<div>DashBoard</div>
 		<button onClick={createDocument}>Create Document</button>
-		<Button variant="primary" onClick={openInviteModal}> Invite Users </Button>
-		<Modal show={isModalOpen} onHide={openInviteModal}>
-			<Modal.Header>
-				<Modal.Title>Search here</Modal.Title>
-			</Modal.Header>
-			<Modal.Body>
-				<TypeAhead />
-			</Modal.Body>
-			<Modal.Footer>
-				<Button variant="secondary" onClick={closeModal}>
-					Close
-				</Button>
-			</Modal.Footer>
-		</Modal>
+		
 	</>
 	);
 }

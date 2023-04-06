@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { fromUint8Array, toUint8Array } from "js-base64";
-import { cryptoUtils } from "../App";
+import { cryptoUtils, socket } from "../App";
 import { InitSenderInfo, InitServerInfo } from "../cryptolib/x3dh";
 import { document } from "../components/TextEditor";
 import * as awarenessProtocol from "y-protocols/awareness.js";
@@ -28,11 +28,10 @@ export class socketHandlers {
 	};
 	onConnect = async () => {
 		console.log("Connected to server with id: ", this.socketInstance.id);
-		await cryptoUtils.setIdentity(this.socketInstance.id);
 		this.isConnected = true;
 	};
 	onDisconnect = async () => {
-		await cryptoUtils.destroyIdentityKeyStore();
+		//await cryptoUtils.destroyIdentityKeyStore();
 		//console.log("Disconnected from server");
 		this.isConnected = false;
 	};
@@ -40,16 +39,19 @@ export class socketHandlers {
 	processUsersInRoom = async (users: any) => {
 		console.log("Users in room", users);
 		if (users === 1) {
-			await cryptoUtils.generateAndsaveIdentityKeysToIDB();
 			await cryptoUtils.generateAndSaveGroupKeyStoreToIDB();
-
-		} else {
-			const preKeyBundle: InitServerInfo = await cryptoUtils.generatePreKeyBundle();
-			//console.log("Prekey bundle generated and sent to server");
-			this.socketInstance.emit("preKeyBundle", preKeyBundle, this.socketInstance.id);
+		}
+		else {
+			console.log("Joined the document!!");
+			socket.socketInstance.emit("joinedDocument", "joined the document");
 		}
 	};
 
+	/**
+	 * @deprecated
+	 * @param preKeyBundle 
+	 * @param participant 
+	 */
 	processPreKeyBundleAndSendFirstMessageToParticipant = async (preKeyBundle: InitServerInfo, participant: string) => {
 		//console.log("Received preKeyBundle from server");
 		const firstGroupMessage = await cryptoUtils.encryptGroupMessage(
@@ -70,6 +72,11 @@ export class socketHandlers {
 		);
 	};
 
+	/**
+	 * @deprecated
+	 * @param firstMessageBundle 
+	 * @param firstGroupMessage 
+	 */
 	processFirstMessageFromGroupLeader = async (firstMessageBundle: InitSenderInfo, firstGroupMessage: string) => {
 		//console.log(`Received first message from `, firstMessageBundle);
 		const decryptedData = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
@@ -127,11 +134,31 @@ export class socketHandlers {
 			color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16)
 		});
 	};
+
 	applyAwarenessUpdate = async (update: string) => {
 		const decodedAwarenessUpdate = toUint8Array(update);
 		console.log("Applying awareness update");
 		awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
 	};
+
+	getPreKeyBundleWithUserID = async (userID: string) => {
+		this.socketInstance.emit("getPreKeyBundleWithUserID", userID);
+	};
+
+	preKeyBundleRecievedFromServer = async (preKeyBundle: InitServerInfo) => {
+		return preKeyBundle;
+	};
+
+	initiateSecureHandshake = async (preKeyBundle: InitServerInfo, userID: string) => {
+		const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
+		const inviterMessageBundle = await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
+			userID,
+			preKeyBundle,
+			groupKey
+		);
+
+
+	}
 
 	connectHandler = (doc: Doc) => {
 		this.socketInstance.connect();
@@ -139,11 +166,10 @@ export class socketHandlers {
 		this.socketInstance.on("connect", this.onConnect);
 		this.socketInstance.on("disconnect", this.onDisconnect);
 		this.socketInstance.on("usersInRoom", this.processUsersInRoom);
-		this.socketInstance.on("prekeyBundleForHandshake", this.processPreKeyBundleAndSendFirstMessageToParticipant);
-		this.socketInstance.on("firstMessageForHandshake", this.processFirstMessageFromGroupLeader);
 		this.socketInstance.on("groupMessage", this.processGroupMessage);
 		this.socketInstance.on("documentUpdate", document.applyDocumentUpdate);
 		this.socketInstance.on("awarenessUpdate", this.applyAwarenessUpdate);
+		this.socketInstance.on("preKeyBundleWithUserID", this.preKeyBundleRecievedFromServer);
 		this.awareness.on("update", this.distributeAwarenessUpdate);
 	};
 
@@ -152,11 +178,10 @@ export class socketHandlers {
 		this.socketInstance.off("connect", this.onConnect);
 		this.socketInstance.off("disconnect", this.onDisconnect);
 		this.socketInstance.off("usersInRoom", this.processUsersInRoom);
-		this.socketInstance.off("preKeyBundle", this.processPreKeyBundleAndSendFirstMessageToParticipant);
-		this.socketInstance.off("firstMessage", this.processFirstMessageFromGroupLeader);
 		this.socketInstance.off("groupMessage", this.processGroupMessage);
 		this.socketInstance.off("documentUpdate", document.applyDocumentUpdate);
 		this.socketInstance.off("awarenessUpdate", this.applyAwarenessUpdate);
+		this.socketInstance.off("preKeyBundleWithUserID", this.preKeyBundleRecievedFromServer);
 		this.awareness.off("update", this.distributeAwarenessUpdate);
 	};
 

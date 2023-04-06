@@ -93,8 +93,8 @@ export class CryptoUtils {
 	};
 
 	generateAndSaveGroupKeyStoreToIDB = async () => {
-		if (!this.x3dh.keyStore)
-			await this.x3dh.initKeyStore();
+		// if (!this.x3dh.keyStore)
+		// 	await this.x3dh.initKeyStore();
 		this.groupKeyStore = {
 			nonce: await this.returnHexEncodedNonce(),
 			groupKey: await this.returnHexEncodedGroupKey(),
@@ -174,7 +174,11 @@ export class CryptoUtils {
 		return decryptedMessage.toString();
 	};
 
-
+	setIdentityAndReturnPreKeyBundle = async (identity: string): Promise<InitServerInfo> => {
+		await this.setIdentity(identity);
+		const preKeyBundle: InitServerInfo = await this.generatePreKeyBundle();
+		return preKeyBundle;
+	};
 }
 
 

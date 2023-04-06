@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import useAxios from '../hooks/useAxios';
 import { Option } from 'react-bootstrap-typeahead/types/types';
+import { Button } from 'react-bootstrap';
 
 interface Item {
     avatar_url: string;
@@ -22,26 +23,23 @@ interface User {
     userId: string;
 }
 
-/* example-start */
+interface Props{
+    selected: any[];
+    setSelected: (selected: any[]) => void;
+}
 
-const AsyncExample = () => {
 
+const TypeAhead: React.FC<Props> = ({selected, setSelected}) => {
     const [areUsersLoading, setAreUsersLoading] = useState(false);
     const [options, setOptions] = useState<User[]>([]);
-    const [selected, setSelected] = useState<any[]>([]);
     const axios = useAxios();
 
     const handleSearch = async (query: string) => {
         setAreUsersLoading(true);
         const response = await axios.get<User[]>(`/api/users?user=${query}`)
-        console.log(response.data)
         setOptions(response.data);
         setAreUsersLoading(false);
     }
-    useEffect(() => {
-        console.log(selected)
-    }, [selected])
-
     return (
         <AsyncTypeahead
             filterBy={() => true}
@@ -58,11 +56,12 @@ const AsyncExample = () => {
             renderMenuItemChildren={(option: any) => (
                 <>
                     <span>{option.userName} • {option.email}</span>
+                    {/* <Button variant = "secondary" >Invite</Button> */}
                 </>
             )}
         />
     );
 };
-/* example-end */
 
-export default AsyncExample;
+
+export default TypeAhead;

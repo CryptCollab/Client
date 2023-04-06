@@ -13,36 +13,45 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
+import { CryptoUtils } from "../utils/crypto";
+import { cryptoUtils } from "../App";
+import { InitServerInfo } from "../cryptolib/x3dh";
+import { UserLoginDataState } from "../features/userData/userLoginData-slice";
+import { sendPreKeyBundleToServer } from "../utils/networkUtils";
 
 const theme = createTheme();
 
 //TODO add better error mesaage display
-export default function SignUp() {
-
+export default async function SignUp() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const axios = useAxios();
 
   const user = useAuth();
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
+    event
+  ) => {
     event.preventDefault();
     try {
-      const userData = await axios.post("/api/register", {
-        "username": event.currentTarget.username.value,
-        "email": event.currentTarget.email.value,
-        "password": event.currentTarget.password.value
-      }, {
-        withCredentials: true
-      });
-
-      user.loginUser(userData.data);
-      const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
+      const registrationResponse = await axios.post<UserLoginDataState>(
+        "/api/register",
+        {
+          username: event.currentTarget.username.value,
+          email: event.currentTarget.email.value,
+          password: event.currentTarget.password.value,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      sendPreKeyBundleToServer(registrationResponse.data, axios);
+      user.loginUser(registrationResponse.data);
+      const redirectURL: string =
+        searchParams.get("redirectURL") ?? "/dashboard";
       navigate(redirectURL);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
-
   };
   return (
     <ThemeProvider theme={theme}>
@@ -62,7 +71,12 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{ mt: 3 }}
+          >
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
