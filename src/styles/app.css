@@ -1,0 +1,6 @@
+:root {
+    --dark-theme: false;
+    --color-canvas-subtle: #f6f8fa;
+    --color-border-muted: hsla(210, 18%, 87%, 1);
+    --color-accent-primary: rgb(156, 232, 208);
+}

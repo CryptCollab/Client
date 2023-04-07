@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button } from "react-bootstrap";
 import UserInvitieModal from "../components/UserInvitieModal";
+import useLoadingDone from "../hooks/useLoadingDone";
 
 
 
@@ -14,6 +15,7 @@ interface User {
 export default function DashBoard() {
 	const protectedAxios = useAxios();
 	const navigate = useNavigate();
+	useLoadingDone();
 	const createDocument = async () => {
 		const data = await protectedAxios.post("/api/document", {
 			userID: "01GWP2QD2CB59BDDT76JWQB0SG",

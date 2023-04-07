@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 import { type } from 'os';
 import useAxios from '../hooks/useAxios';
+import useLoadingDone from '../hooks/useLoadingDone';
 
 type LocalOption = Record<string, User>;
 interface User {
@@ -26,6 +27,8 @@ export default function Document() {
     const [options, setOptions] = useState<User[]>([]);
     const [areUsersLoading, setAreUsersLoading] = useState(false);
     const axios = useAxios();
+    useLoadingDone();
+
 
     const openInviteModal = () => {
         setIsModalOpen(true)
@@ -41,7 +44,7 @@ export default function Document() {
 
     return (
         <div className={styles.root}>
-            
+
 
             <Tiptap />
         </div>

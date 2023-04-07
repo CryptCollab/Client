@@ -10,10 +10,11 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import useLoadingDone from "../hooks/useLoadingDone";
 
 
-function Home() {  
-
+function Home() {
+	useLoadingDone();
 	const darkTheme = createTheme({
 		palette: {
 			mode: "dark",
@@ -22,35 +23,35 @@ function Home() {
 
 	const cards = [
 		{
-			title: "End to End Encrypted",    
+			title: "End to End Encrypted",
 			description: [
 				"Your data is safe with us",
-				"Write without any worries",      
-			],    
+				"Write without any worries",
+			],
 		},
 		{
-			title: "Real-Time Collaboration",    
+			title: "Real-Time Collaboration",
 			description: [
 				"Invite your friends!!",
 				"Collaborate with ease",
-			],    
+			],
 		},
 		{
-			title: "Conflict Resolution with CRDTs",    
+			title: "Conflict Resolution with CRDTs",
 			description: [
 				"Resolves conflicts",
-				"Guarantees convergence",      
-			],    
+				"Guarantees convergence",
+			],
 		},
 	];
 
 
-	return (   
+	return (
 		<React.Fragment>
 			<GlobalStyles styles={{ ul: { margin: 0, padding: 0, listStyle: "none" } }} />
 			<ThemeProvider theme={darkTheme}>
 				<CssBaseline />
-				<Navbar/>
+				<Navbar />
 				<Container disableGutters maxWidth="sm" component="main" sx={{ pt: 8, pb: 6 }}>
 					<Typography
 						component="h1"
@@ -59,13 +60,13 @@ function Home() {
 						color="primary"
 						gutterBottom
 					>
-          CryptCollab
-					</Typography>        
+						<code>CryptCollab</code>
+					</Typography>
 				</Container>
-      
+
 				<Container maxWidth="md" component="main">
 					<Grid container spacing={5} alignItems="flex-end">
-						{cards.map((card) => (           
+						{cards.map((card) => (
 							<Grid
 								item
 								key={card.title}
@@ -83,12 +84,12 @@ function Home() {
 											gutterBottom
 										>
 											{card.title}
-										</Typography>  }                
-										titleTypographyProps={{ align: "center" }}                  
+										</Typography>}
+										titleTypographyProps={{ align: "center" }}
 										subheaderTypographyProps={{
 											align: "center",
 										}}
-										sx={{                    
+										sx={{
 											backgroundColor: (theme) =>
 												theme.palette.mode === "light"
 													? theme.palette.grey[200]
@@ -103,7 +104,7 @@ function Home() {
 												alignItems: "baseline",
 												mb: 2,
 											}}
-										>                    
+										>
 										</Box>
 										<ul>
 											{card.description.map((line) => (
@@ -117,13 +118,13 @@ function Home() {
 												</Typography>
 											))}
 										</ul>
-									</CardContent>                
+									</CardContent>
 								</Card>
 							</Grid>
 						))}
 					</Grid>
-				</Container>      
-			</ThemeProvider>        
+				</Container>
+			</ThemeProvider>
 		</React.Fragment>
 	);
 }

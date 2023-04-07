@@ -13,6 +13,7 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
+import useLoadingDone from "../hooks/useLoadingDone";
 
 const theme = createTheme();
 
@@ -22,6 +23,7 @@ export default function SignUp() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const axios = useAxios();
+  useLoadingDone();
 
   const user = useAuth();
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {

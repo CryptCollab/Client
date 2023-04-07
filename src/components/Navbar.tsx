@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -33,8 +33,7 @@ export default function Navbar() {
 						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
 							Home
 						</Typography>
-						<Button href="/dashboard" color="inherit">Dashboard</Button>
-						<Button href="/document" color="inherit">Document</Button>
+						<Link to="/dashboard">Dashboard</Link>
 						<Button onClick={handleLogout} color="inherit">Logout</Button>
 					</Toolbar>
 				</AppBar>
@@ -50,8 +49,8 @@ export default function Navbar() {
 						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
 							Home
 						</Typography>
-						<Button href="/login" color="inherit">Login</Button>
-						<Button href="/register" color="inherit">Register</Button>
+						<Link to="/login">Login</Link>
+						<Link to="/register">Sign Up</Link>
 					</Toolbar>
 				</AppBar>
 			</Box>
