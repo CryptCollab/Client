@@ -38,7 +38,6 @@ export default function App() {
 	};
 
 	useEffect(() => {
-		console.log("fetching user data");
 		if (loading) {
 			tryFetchingUserDataUsingRefreshToken();
 		} else {

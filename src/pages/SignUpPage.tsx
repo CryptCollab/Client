@@ -1,19 +1,12 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import LinkMUI from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
 import useLoadingDone from "../hooks/useLoadingDone";
+import styles from "../styles/login-signup.module.css";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 
 const theme = createTheme();
 
@@ -26,13 +19,13 @@ export default function SignUp() {
   useLoadingDone();
 
   const user = useAuth();
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleSignUp: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     try {
       const userData = await axios.post("/api/register", {
-        "username": event.currentTarget.username.value,
-        "email": event.currentTarget.email.value,
-        "password": event.currentTarget.password.value
+        "userName": event.target["username"].value,
+        "email": event.target["email"].value,
+        "password": event.target["password"].value
       }, {
         withCredentials: true
       });
@@ -47,75 +40,43 @@ export default function SignUp() {
 
   };
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="username"
-                  label="Username"
-                  name="username"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <LinkMUI href="/login" variant="body2">
-                  Already have an account? Log in
-                </LinkMUI>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+    <div className={styles.root}>
+      <img src='logo.png' width="auto" height="150px" />
+      <span className={styles.welcomeText}>
+        Register with <code className={styles.title}>Cryptcollab</code>
+      </span>
+      <div className={styles.container} >
+        <Form onSubmit={handleSignUp} noValidate>
+          <Form.Group className="mb-3" controlId="formBasicEmail" >
+            <Form.Label>
+              Username
+            </Form.Label>
+            <Form.Control type="text" placeholder="Enter username" name="username" />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicEmail" >
+            <Form.Label>
+              Email address
+            </Form.Label>
+            <Form.Control type="email" placeholder="Enter email" name="email" />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>
+              Password
+            </Form.Label>
+            <Form.Control type="password" placeholder="Password" name="password" />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check type="checkbox" label="Remember me" defaultChecked />
+          </Form.Group>
+          <Button variant="primary" type="submit" style={{ width: "100%" }}  >
+            Submit
+          </Button>
+        </Form>
+        <div className={styles.footer}>
+          Already registered? <Link to="/register" className={styles.registerLink}>Log in here</Link>
+        </div>
+      </div>
+    </div >
   );
 }

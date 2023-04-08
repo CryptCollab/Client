@@ -7,7 +7,6 @@ export default function useLoadingDone() {
     const loadingContext = useLoadingContext();
 
     useEffect(() => {
-        console.log("useLoadingDone");
         loadingContext.done();
     }, []);
 
