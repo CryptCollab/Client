@@ -12,7 +12,7 @@ import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
 const theme = createTheme();
 
 //TODO add better error mesaage display
-export default async function SignUp() {
+export default function SignUp() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const axios = useAxios();
@@ -36,6 +36,7 @@ export default async function SignUp() {
       navigate(redirectURL);
     } catch (error) {
       console.error(error);
+      console.log("NHi ho rha kya")
     }
   };
   return (
