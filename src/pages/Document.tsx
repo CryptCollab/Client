@@ -1,6 +1,6 @@
 import Tiptap from '../components/TextEditor'
 import Button from 'react-bootstrap/Button'
-import styles from "../styles/Document.module.css"
+import styles from "../styles/document.module.css"
 import Modal from 'react-bootstrap/Modal';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'; // ES2015
 import { useState } from 'react';
