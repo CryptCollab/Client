@@ -1,135 +1,121 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import LinkMUI from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useEffect, useState } from "react";
 import { UserLoginDataState } from "../features/userData/userLoginData-slice";
 import useAxios from "../hooks/useAxios";
+import { AxiosError } from "axios"
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert"
+import styles from "../styles/login-signup.module.css";
+import useLoadingDone from "../hooks/useLoadingDone";
 
-const theme = createTheme();
+interface PostError {
+  errors: [
+    {
+      msg: string,
+      param: string,
+      location: string
+    }
+  ]
+}
 
-//TODO add better error mesaage display
 export default function Login() {
   const user = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const axios = useAxios()
-  console.log(axios.defaults.baseURL)
+  const axios = useAxios();
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [unknownError, setUnknownError] = useState("");
+  const location = useLocation();
+  useLoadingDone();
+
 
 
   //used in error attribute in TextField
   //setIsError not yet added
-  const [isError, setIsError] = React.useState("");
 
   // login user and store user data in redux store
   // redirect to requested page
-  const handleLoginClick: React.FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleLogin: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
+
+
+
     try {
       const userData = await axios.post<UserLoginDataState>(
         "/api/login",
         {
-          "email": event.currentTarget.email.value,
-          "password": event.currentTarget.passwordInputBox.value
-        }, {
-        withCredentials: true
-      });
-      console.log(userData.data);
+          "user": event.target["user"].value,
+          "password": event.target["password"].value
+        });
+
       user.loginUser(userData.data);
-      const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
-      navigate(redirectURL);
+      const redirectURL: string = location.state?.redirectURL ?? "/dashboard";
+      navigate(redirectURL, { replace: true });
     }
     catch (error: any) {
-      console.error(error);
-      setIsError(error?.response?.data);
+      if (error.response) {
+        if (error.response.status === 400) {
+          setUnknownError(error.response.status);
+        }
+        else {
+          setUnknownError(error.response.data);
+        }
+      } else if (error.request) {
+        setUnknownError(`Server responded with a code of ${error.response.status} with no additional response.`);
+      } else {
+        console.error(error);
+        setUnknownError(error.message);
+      }
+
     }
   };
 
-  /*return (
-      <div className={styles.main}>
-          Welcome back! Please login to continue<br />
-          <form onSubmit={event => event.preventDefault()}>
-              <label htmlFor="usernameInputBox">Username: </label>
-              <input id="usernameInputBox" type="text" name="usernameInputBox" /><br />
-              <label htmlFor="passwordInputBox">Password: </label>
-              <input id="passwordInputBox" type="password" name="passwordInputBox" /><br />
-              <input id="submitButton" onClick={handleLoginClick} type="submit" value="Login" /><br />
-          </form><br />
-          <span> New User? Sign up <Link to="/register">here</Link></span>
-      </div>
-  )*/
-
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Log in
-          </Typography>
-          <Box component="form" onSubmit={handleLoginClick} noValidate sx={{ mt: 1 }}>
-            <TextField
-              error={isError !== ""}
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              helperText={isError}
-            />
-            <TextField
-              error={isError !== ""}
-              margin="normal"
-              required
-              fullWidth
-              name="passwordInputBox"
-              label="Password"
-              type="password"
-              id="passwordInputBox"
-              autoComplete="current-password"
-              helperText={isError}
-            />
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Log In
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <LinkMUI href="/register" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </LinkMUI>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+    <div className={styles.root}>
+      <img src='logo_200_light.png' width="auto" height="150px" />
+      <span className={styles.welcomeText}>
+        Log in to <code className={styles.title}>Cryptcollab</code>
+      </span>
+      <div className={styles.container} >
+        <Form onSubmit={handleLogin} noValidate>
+          <Form.Group className="mb-3" controlId="formBasicEmail" >
+            <Form.Label>
+              Email address or username
+            </Form.Label>
+            <Form.Control type="text" placeholder="Enter email or user" name="user" isInvalid={emailError !== ""} />
+            <Form.Control.Feedback type="invalid">
+              { }
+            </Form.Control.Feedback>
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>
+              Password
+              <Link style={{ justifyContent: "right" }} to="/account-recovery" className={styles.forgotPasswordText}>Forgot Password?</Link>
+            </Form.Label>
+            <Form.Control type="password" placeholder="Password" name="password" />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check type="checkbox" label="Remember me" defaultChecked />
+          </Form.Group>
+          <Button variant="primary" type="submit" style={{ width: "100%" }}  >
+            Submit
+          </Button>
+        </Form>
+        <div className={styles.footer}>
+          Not registered? <Link to="/register" className={styles.registerLink}>Sign up here</Link>
+        </div>
+      </div>
+      {(unknownError !== "") && <Alert variant="danger" onClose={() => setUnknownError("")} dismissible>
+
+        <span>{JSON.stringify(unknownError)}</span>
+      </Alert>}
+    </div>
+
   );
 }
+
