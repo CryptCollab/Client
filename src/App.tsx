@@ -1,8 +1,9 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import { Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePage_legacy";
 import PrivateRoute from "./components/PrivateRoute";
+import AltHomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import DashBoard from "./pages/DashBoard";
 import Document from "./pages/Document";
