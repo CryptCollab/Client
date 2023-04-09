@@ -52,7 +52,7 @@ export default function App() {
 			//Routes that require user to be logged in, to be loaded
 			<Route element={<PrivateRoute />}>
 				<Route path="/dashboard" element={<DashBoard />} loading />
-				<Route path="/document" element={<Navigate to="/dashboard" />} loading />
+				<Route path="/document" element={<Navigate to="/dashboard" replace />} loading />
 				<Route path="/document/:id" element={<Document />} loading />
 			</Route>
 
