@@ -41,7 +41,7 @@ export default function SignUp() {
   };
   return (
     <div className={styles.root}>
-      <img src='logo.png' width="auto" height="150px" />
+      <img src='logo_200_light.png' width="auto" height="150px" />
       <span className={styles.welcomeText}>
         Register with <code className={styles.title}>Cryptcollab</code>
       </span>

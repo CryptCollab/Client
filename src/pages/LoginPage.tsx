@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { UserLoginDataState } from "../features/userData/userLoginData-slice";
@@ -28,8 +28,7 @@ export default function Login() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [unknownError, setUnknownError] = useState("");
-  const a = "a";
-  console.log(typeof unknownError, typeof a, typeof a === typeof unknownError)
+  const location = useLocation();
   useLoadingDone();
 
 
@@ -51,9 +50,10 @@ export default function Login() {
           "user": event.target["user"].value,
           "password": event.target["password"].value
         });
+
       user.loginUser(userData.data);
-      const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
-      navigate(redirectURL);
+      const redirectURL: string = location.state?.redirectURL ?? "/dashboard";
+      navigate(redirectURL, { replace: true });
     }
     catch (error: any) {
       if (error.response) {
@@ -66,18 +66,17 @@ export default function Login() {
       } else if (error.request) {
         setUnknownError(`Server responded with a code of ${error.response.status} with no additional response.`);
       } else {
+        console.error(error);
         setUnknownError(error.message);
       }
 
     }
   };
 
-  const classes = ["container"]
-
   return (
 
     <div className={styles.root}>
-      <img src='logo.png' width="auto" height="150px" />
+      <img src='logo_200_light.png' width="auto" height="150px" />
       <span className={styles.welcomeText}>
         Log in to <code className={styles.title}>Cryptcollab</code>
       </span>

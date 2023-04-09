@@ -2,10 +2,9 @@
 import { Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import PrivateRoute from "./components/PrivateRoute";
 import SignUpPage from "./pages/SignUpPage";
 import DashBoard from "./pages/DashBoard";
-import PersistLogin from "./components/PersistLogin";
 import Document from "./pages/Document";
 import { CryptoUtils } from "./utils/crypto";
 import { socketHandlers } from "./utils/socket";
@@ -23,23 +22,11 @@ export default function App() {
 	const [loading, setLoading] = useState(true);
 	const refresh = useRefreshToken();
 
-	const tryFetchingUserDataUsingRefreshToken = async () => {
-		//User credentials not persent try to get userdata using refresh token
-		try {
-			await refresh();
-		}
-		//Unable to get user data using refresh token, use not logged in
-		catch (error) {
-			console.error(error);
-		}
-		finally {
-			setLoading(false);
-		}
-	};
 
 	useEffect(() => {
+		console.log("loading:", loading);
 		if (loading) {
-			tryFetchingUserDataUsingRefreshToken();
+			refresh().then(() => { setLoading(false) });
 		} else {
 			setLoading(false);
 		}
@@ -50,14 +37,25 @@ export default function App() {
 
 	return (
 		<Routes>
-			<Route path="/" element={<HomePage />} loadingScreen={<Loader />} />
+			//Routes that do not require any authentication
 			<Route path="/loading" element={<Loader />} />
-			<Route path="/login" element={<LoginPage />} loading />
-			<Route path="/register" element={<SignUpPage />} loading />
-			<Route path="/dashboard" element={<ProtectedRoute><DashBoard /></ProtectedRoute>} loading />
-			<Route path="/document" element={<Navigate to="/dashboard" />} loading />
-			<Route path="/document/:id" element={<ProtectedRoute><Document /></ProtectedRoute>} loading />
 			<Route path="*" element={<h1>404: Not Found</h1>} />
+
+			//Routes that require authentication, to load parts of the page conditionally
+			<Route path="/" element={<HomePage />} loadingScreen={<Loader />} />
+
+			//Routes that require user to NOT be logged in, to be loaded
+			<Route element={<PrivateRoute requireUnAuthenticated />} >
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/register" element={<SignUpPage />} />
+			</Route>
+			//Routes that require user to be logged in, to be loaded
+			<Route element={<PrivateRoute />}>
+				<Route path="/dashboard" element={<DashBoard />} loading />
+				<Route path="/document" element={<Navigate to="/dashboard" />} loading />
+				<Route path="/document/:id" element={<Document />} loading />
+			</Route>
+
 		</Routes>
 	);
 }
