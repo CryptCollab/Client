@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
-
+import { Link } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/Button';
 
 
 export default function Navigationbar() {
@@ -23,17 +24,34 @@ export default function Navigationbar() {
 
 	};
 
+	const linkStyle = {
+  		margin: "1rem",
+  		textDecoration: "none",
+  		color: 'white'
+	};
+
 	if (user.isUserLoggedIn()) {
 		return (			
 			<Navbar bg="dark" variant="dark" expand="lg">
         		<Container>
-          			<Navbar.Brand href="#home">Home</Navbar.Brand>
+          			<Navbar.Brand href="#home">
+						<img style={{objectFit:"contain"}}
+      						src="/logo_50_dark.png"
+      						width="auto"
+      						height="auto"      						     						
+    					/>{' '}
+						CryptCollab
+					</Navbar.Brand>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
         			<Navbar.Collapse id="basic-navbar-nav">
-          				<Nav className="me-auto">
-            				<Nav.Link href="/dashboard">Dashboard</Nav.Link>
-            				<Nav.Link href="/document">Document</Nav.Link>
-            				<Nav.Link onSelect={handleLogout}>Logout</Nav.Link>
+          				<Nav className="ms-auto">
+            				<Link to="/dashboard" style={linkStyle}>Dashboard</Link>
+            				<Link to="/document" style={linkStyle}>Document</Link>
+            				<Button onClick={handleLogout} variant="link" 
+							style={{textDecoration: "none",
+  									color: 'white'}}>
+									Logout
+							</Button>
           				</Nav>
 					</Navbar.Collapse>
         		</Container>
@@ -44,12 +62,20 @@ export default function Navigationbar() {
 		return (			
 			<Navbar bg="dark" variant="dark" expand="lg">
         		<Container>
-          			<Navbar.Brand href="#home">Home</Navbar.Brand>
+          			<Navbar.Brand href="#home">
+						<img style={{objectFit:"contain"}}
+      						src="/logo_50_dark.png"
+      						width="auto"
+      						height="40"
+      						     						
+    					/>{' '}
+						CryptCollab
+					</Navbar.Brand>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
         			<Navbar.Collapse id="basic-navbar-nav">
-          				<Nav className="me-auto">
-            				<Nav.Link href="/login">Login</Nav.Link>
-            				<Nav.Link href="/register">Register</Nav.Link>            			
+          				<Nav className="ms-auto">
+            				<Link to="/login" style={linkStyle}>Login</Link>
+            				<Link to="/register" style={linkStyle}>Register</Link>            			
           				</Nav>
 					</Navbar.Collapse>
         		</Container>

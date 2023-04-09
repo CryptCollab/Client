@@ -32,6 +32,7 @@
     "react-bootstrap": "^2.7.2",
     "react-bootstrap-typeahead": "^6.1.1",
     "react-dom": "^18.2.0",
+    "react-moving-text": "^0.0.7",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.1",
     "rollup-plugin-polyfill-node": "^0.12.0",
