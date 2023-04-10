@@ -144,6 +144,7 @@ export async function decryptData(
 	// console.log(aad)
 	const storedCommitment = await sodium.sodium_hex2bin(encrypted.slice(50, 114));
 	const { encKey, commitment } = await deriveKeys(key, nonce);
+	//console.log(encKey,commitment)
 	if (!(await sodium.sodium_memcmp(storedCommitment, commitment))) {
 		// console.log(commitment)
 		// console.log(storedCommitment)

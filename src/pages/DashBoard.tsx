@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button } from "react-bootstrap";
-import UserInvitieModal from "../components/UserInvitieModal";
 import useLoadingDone from "../hooks/useLoadingDone";
 import useAuth from "../hooks/useAuth";
-
-
+import { cryptoUtils } from "../App";
+import { getUserKeyStoreFromServerAndInitKeyStore, sendGroupKeyToServer } from "../utils/networkUtils";
+import { _genRandomBuffer, genEncryptedMasterKey } from "easy-web-crypto";
 
 interface User {
 	userName: string;
@@ -25,34 +25,41 @@ type userInvites = {
 
 export default function DashBoard() {
   const [documentInvites, setDocumentInvites] = useState<any[]>([]);
-	const protectedAxios = useAxios();
-	const navigate = useNavigate();
-	const auth = useAuth();
-	useEffect(() => {
+  const protectedAxios = useAxios();
+  const navigate = useNavigate();
+  const axios = useAxios();
+  const auth = useAuth();
+  useEffect(() => {
 		console.log(auth.userData);
 	});
 	useLoadingDone();
-  const createDocument = async () => {
+  const handleDocumentCreation = async () => {
     const data = await protectedAxios.post("/api/document", {
-      userID: "01GWP2QD2CB59BDDT76JWQB0SG",
+      userID: auth.userData?.userID,
     });
-    navigate("/document/" + data.data, {
+    const documentID: string = data.data;
+    const groupKeys = await cryptoUtils.generateGroupKeys();
+    await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
+    sendGroupKeyToServer(documentID, protectedAxios);
+    navigate("/document/" + documentID, {
       replace: true,
       state: { documentID: data.data, joinedDocument: false },
     });
   };
 
-  const joinDocument = async (documentInvite: userInvites) => {
+  const handleDocumentJoining = async (documentInvite: userInvites) => {
     navigate("/document/" + documentInvite.documentID, {
       replace: true,
-      state: { documentID: documentInvite.documentID, joinedDocument: true, documentInvite },
+      state: {
+        documentID: documentInvite.documentID,
+        joinedDocument: true,
+        documentInvite,
+      },
     });
   };
-    
 
   const getDocumentInvites = async () => {
     const data = await protectedAxios.get("/api/document/invites");
-    console.log(data.data);
     return data.data;
   };
 
@@ -65,10 +72,22 @@ export default function DashBoard() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
+
+
+  useEffect(() => {
+    getDocumentInvites().then((data) => {
+      setDocumentInvites(data);
+    });
+    
+    getUserKeyStoreFromServerAndInitKeyStore(auth.userData?.userID as string, axios)
+
+  }, []);
+
   return (
     <>
       <div>DashBoard</div>
-      <button onClick={createDocument}>Create Document</button><br />
+      <button onClick={handleDocumentCreation}>Create Document</button>
+      <br />
       <h1>Document Invites</h1>
       {documentInvites.map((invite: userInvites) => (
         <ul key={invite.entityID}>
@@ -76,7 +95,7 @@ export default function DashBoard() {
             {invite.documentID}
             <Button
               variant="primary"
-              onClick={() => joinDocument(invite)}
+              onClick={() => handleDocumentJoining(invite)}
             >
               Open
             </Button>

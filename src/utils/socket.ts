@@ -36,10 +36,73 @@ export class socketHandlers {
 		this.isConnected = false;
 	};
 
+	processGroupMessage = async (groupMessage: string) => {
+		//console.log("Received group message");
+		const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
+			groupMessage
+		);
+		console.log(decryptedGroupMessage);
+	};
+
+	distributeDocumentUpdate = async (update: any, origin: any) => {
+		if (origin === null) {
+			//console.log("Not distributing update");
+			return;
+		}
+		//console.log("Distributing update");
+		const encryptedUpdate = await cryptoUtils.encryptGroupMessage(fromUint8Array(update));
+		this.socketInstance.emit("documentUpdate", encryptedUpdate);
+	};
+
+	distributeAwarenessUpdate = (changeObject: { added: []; updated: []; removed: []; }, origin: any) => {
+		if (origin === null) {
+			//console.log("Not distributing awareness update");
+			return;
+		}
+		const { added, updated, removed } = changeObject;
+		const changedClients = added.concat(updated).concat(removed);
+		const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients);
+		this.socketInstance.emit("awarenessUpdate", fromUint8Array(encodedAwarenessState));
+	};
+
+	setAwarenessState = () => {
+		this.awareness.setLocalStateField("user", {
+			name: "User " + Math.floor(Math.random() * 100),
+			color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16)
+		});
+	};
+
+	applyAwarenessUpdate = async (update: string) => {
+		const decodedAwarenessUpdate = toUint8Array(update);
+		//console.log("Applying awareness update");
+		awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
+	};
+
+	getPreKeyBundleWithUserID = async (userID: string) => {
+		this.socketInstance.emit("getPreKeyBundleWithUserID", userID);
+	};
+
+	preKeyBundleRecievedFromServer = async (preKeyBundle: InitServerInfo) => {
+		return preKeyBundle;
+	};
+
+	initiateSecureHandshake = async (preKeyBundle: InitServerInfo, userID: string) => {
+		const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
+		const inviterMessageBundle = await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
+			userID,
+			preKeyBundle,
+			groupKey
+		);
+	};
+
+	/**
+ * @deprecated 
+ * @param users 
+ */
 	processUsersInRoom = async (users: any) => {
 		console.log("Users in room", users);
 		if (users === 1) {
-			await cryptoUtils.generateAndSaveGroupKeyStoreToIDB();
+			await cryptoUtils.generateGroupKeys();
 		}
 		else {
 			console.log("Joined the document!!");
@@ -86,7 +149,7 @@ export class socketHandlers {
 			nonce: decryptedData.toString().slice(0, 48),
 			groupKey: decryptedData.toString().slice(48),
 		};
-		cryptoUtils.saveGroupKeyStoreToIDB(cryptoUtils.groupKeyStore);
+		cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore);
 		//console.log(cryptoUtils.groupKeyStore);
 		const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
 			firstGroupMessage
@@ -99,73 +162,11 @@ export class socketHandlers {
 		//return groupKeyStore;
 	};
 
-	processGroupMessage = async (groupMessage: string) => {
-		//console.log("Received group message");
-		const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
-			groupMessage
-		);
-		console.log(decryptedGroupMessage);
-	};
-
-	distributeDocumentUpdate = async (update: any, origin: any) => {
-		if (origin === null) {
-			//console.log("Not distributing update");
-			return;
-		}
-		//console.log("Distributing update");
-		const encryptedUpdate = await cryptoUtils.encryptGroupMessage(fromUint8Array(update));
-		this.socketInstance.emit("documentUpdate", encryptedUpdate);
-	};
-
-	distributeAwarenessUpdate = (changeObject: { added: []; updated: []; removed: []; }, origin: any) => {
-		if (origin === null) {
-			console.log("Not distributing awareness update");
-			return;
-		}
-		const { added, updated, removed } = changeObject;
-		const changedClients = added.concat(updated).concat(removed);
-		const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients);
-		this.socketInstance.emit("awarenessUpdate", fromUint8Array(encodedAwarenessState));
-	};
-
-	setAwarenessState = () => {
-		this.awareness.setLocalStateField("user", {
-			name: "User " + Math.floor(Math.random() * 100),
-			color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16)
-		});
-	};
-
-	applyAwarenessUpdate = async (update: string) => {
-		const decodedAwarenessUpdate = toUint8Array(update);
-		console.log("Applying awareness update");
-		awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
-	};
-
-	getPreKeyBundleWithUserID = async (userID: string) => {
-		this.socketInstance.emit("getPreKeyBundleWithUserID", userID);
-	};
-
-	preKeyBundleRecievedFromServer = async (preKeyBundle: InitServerInfo) => {
-		return preKeyBundle;
-	};
-
-	initiateSecureHandshake = async (preKeyBundle: InitServerInfo, userID: string) => {
-		const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
-		const inviterMessageBundle = await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
-			userID,
-			preKeyBundle,
-			groupKey
-		);
-
-
-	}
-
 	connectHandler = (doc: Doc) => {
 		this.socketInstance.connect();
 		this.initAwareness(doc);
 		this.socketInstance.on("connect", this.onConnect);
 		this.socketInstance.on("disconnect", this.onDisconnect);
-		this.socketInstance.on("usersInRoom", this.processUsersInRoom);
 		this.socketInstance.on("groupMessage", this.processGroupMessage);
 		this.socketInstance.on("documentUpdate", document.applyDocumentUpdate);
 		this.socketInstance.on("awarenessUpdate", this.applyAwarenessUpdate);
@@ -177,7 +178,6 @@ export class socketHandlers {
 		this.socketInstance.disconnect();
 		this.socketInstance.off("connect", this.onConnect);
 		this.socketInstance.off("disconnect", this.onDisconnect);
-		this.socketInstance.off("usersInRoom", this.processUsersInRoom);
 		this.socketInstance.off("groupMessage", this.processGroupMessage);
 		this.socketInstance.off("documentUpdate", document.applyDocumentUpdate);
 		this.socketInstance.off("awarenessUpdate", this.applyAwarenessUpdate);

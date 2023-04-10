@@ -14,8 +14,9 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import styles from "../styles/login-signup.module.css";
 import useLoadingDone from "../hooks/useLoadingDone";
-import { cryptoUtils } from "../App";
 import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
+import { getUserKeyStoreFromServerAndInitKeyStore } from "../utils/networkUtils";
+import { cryptoUtils } from "../App";
 
 interface PostError {
   errors: [
@@ -53,8 +54,7 @@ export default function Login() {
         user: event.target["user"].value,
         password: event.target["password"].value,
       });
-
-      sendPreKeyBundleAndUserKeyStoreToServer(loginResponse.data, axios);
+      await getUserKeyStoreFromServerAndInitKeyStore(loginResponse.data.userData?.userID as string, axios);
       user.loginUser(loginResponse.data);
       const redirectURL: string = location.state?.redirectURL ?? "/dashboard";
       navigate(redirectURL, { replace: true });
