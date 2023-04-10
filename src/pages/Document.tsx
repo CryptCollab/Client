@@ -44,8 +44,6 @@ export default function Document() {
 
     return (
         <div className={styles.root}>
-
-
             <Tiptap />
         </div>
     )

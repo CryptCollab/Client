@@ -39,7 +39,7 @@ export default function useAxios() {
 					const userData = await refresh();
 
 					//TODO look into redux synchronization
-					prevRequest.headers["Authorization"] = `Bearer ${userData.userData?.accessToken}`;
+					prevRequest.headers["Authorization"] = `Bearer ${userData?.userData?.accessToken}`;
 					return privateAxios(prevRequest);
 				}
 				return Promise.reject(error);
