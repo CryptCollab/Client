@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import useAuth from "./useAuth";
 import useRefreshToken from "./useRefreshToken";
+import AuthContext from "../context/AuthContext";
 
 const privateAxios = axios.create({
 	baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8080/",
@@ -14,7 +15,8 @@ const privateAxios = axios.create({
 
 
 export default function useAxios() {
-	const user = useAuth();
+	const user = useContext(AuthContext);
+
 	const refresh = useRefreshToken();
 
 	useEffect(() => {
@@ -23,6 +25,9 @@ export default function useAxios() {
 			config => {
 				if (!config.headers["Authorization"]) {
 					config.headers["Authorization"] = `Bearer ${user.userData?.accessToken}`;
+					config.headers["Cache-Control"] = "no-cache";
+					config.headers["Pragma"] = "no-cache";
+					config.headers["Expires"] = "0";
 				}
 				return config;
 			},
@@ -39,7 +44,7 @@ export default function useAxios() {
 					const userData = await refresh();
 
 					//TODO look into redux synchronization
-					prevRequest.headers["Authorization"] = `Bearer ${userData.userData?.accessToken}`;
+					prevRequest.headers["Authorization"] = `Bearer ${user.userData?.accessToken}`;
 					return privateAxios(prevRequest);
 				}
 				return Promise.reject(error);

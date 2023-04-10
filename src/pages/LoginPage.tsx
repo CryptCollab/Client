@@ -1,7 +1,6 @@
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
-import { UserLoginDataState } from "../features/userData/userLoginData-slice";
 import useAxios from "../hooks/useAxios";
 import { AxiosError } from "axios"
 import Form from "react-bootstrap/Form";
@@ -22,8 +21,6 @@ interface PostError {
 
 export default function Login() {
   const user = useAuth();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const axios = useAxios();
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -44,16 +41,14 @@ export default function Login() {
 
 
     try {
-      const userData = await axios.post<UserLoginDataState>(
+      const userData = await axios.post<UserData>(
         "/api/login",
         {
           "user": event.target["user"].value,
-          "password": event.target["password"].value
+          "password": event.target["password"].value,
+          "remember": event.target["rememberMe"].checked
         });
-
       user.loginUser(userData.data);
-      const redirectURL: string = location.state?.redirectURL ?? "/dashboard";
-      navigate(redirectURL, { replace: true });
     }
     catch (error: any) {
       if (error.response) {
@@ -100,7 +95,7 @@ export default function Login() {
             <Form.Control type="password" placeholder="Password" name="password" />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <Form.Check type="checkbox" label="Remember me" defaultChecked />
+            <Form.Check type="checkbox" label="Remember me" name="rememberMe" defaultChecked />
           </Form.Group>
           <Button variant="primary" type="submit" style={{ width: "100%" }}  >
             Submit

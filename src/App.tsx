@@ -15,48 +15,57 @@ import './styles/app.scss';
 import Loader from "./components/Loader";
 import { useEffect, useState } from "react";
 import useRefreshToken from "./hooks/useRefreshToken";
+import { AuthContext } from "./context/AuthContext";
 
 export const cryptoUtils = new CryptoUtils();
 export const socket = new socketHandlers(import.meta.env.VITE_SERVER_BASE_URL);
 export default function App() {
 	const [loading, setLoading] = useState(true);
 	const refresh = useRefreshToken();
+	const [userData, setUserData] = useState<UserData | null>(null);
+
 
 
 	useEffect(() => {
-		console.log("loading:", loading);
 		if (loading) {
-			refresh().then(() => { setLoading(false) });
+			refresh().then((userData1) => {
+				setLoading(false);
+				setUserData(userData1);
+			});
 		} else {
 			setLoading(false);
 		}
 
-	}, []);
+	}, [userData]);
 
 	if (loading) return <Loader />
 
 	return (
-		<Routes>
+		<AuthContext.Provider value={{ userData, setUserData }}>
+
+			<Routes>
 			//Routes that do not require any authentication
-			<Route path="/loading" element={<Loader />} />
-			<Route path="*" element={<h1>404: Not Found</h1>} />
+				<Route path="/loading" element={<Loader />} />
+				<Route path="*" element={<h1>404: Not Found</h1>} />
 
 			//Routes that require authentication, to load parts of the page conditionally
-			<Route path="/" element={<HomePage />} loadingScreen={<Loader />} />
+				<Route path="/" element={<HomePage />} loadingScreen={<Loader />} />
 
 			//Routes that require user to NOT be logged in, to be loaded
-			<Route element={<PrivateRoute requireUnAuthenticated />} >
-				<Route path="/login" element={<LoginPage />} />
-				<Route path="/register" element={<SignUpPage />} />
-			</Route>
+				<Route element={<PrivateRoute requireUnAuthenticated />} >
+					<Route path="/login" element={<LoginPage />} />
+					<Route path="/register" element={<SignUpPage />} />
+				</Route>
 			//Routes that require user to be logged in, to be loaded
-			<Route element={<PrivateRoute />}>
-				<Route path="/dashboard" element={<DashBoard />} loading />
-				<Route path="/document" element={<Navigate to="/dashboard" replace />} loading />
-				<Route path="/document/:id" element={<Document />} loading />
-			</Route>
+				<Route element={<PrivateRoute />}>
+					<Route path="/dashboard" element={<DashBoard />} loading />
+					<Route path="/document" element={<Navigate to="/dashboard" replace />} loading />
+					<Route path="/document/:id" element={<Document />} loading />
+				</Route>
 
-		</Routes>
+			</Routes>
+		</AuthContext.Provider >
+
 	);
 }
 

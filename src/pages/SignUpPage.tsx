@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import * as React from "react";
 import { createTheme } from "@mui/material/styles";
 import useAuth from "../hooks/useAuth";
@@ -13,8 +13,6 @@ const theme = createTheme();
 //TODO add better error mesaage display
 export default function SignUp() {
 
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const axios = useAxios();
   useLoadingDone();
 
@@ -31,8 +29,6 @@ export default function SignUp() {
       });
 
       user.loginUser(userData.data);
-      const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
-      navigate(redirectURL);
     }
     catch (error) {
       console.error(error);
