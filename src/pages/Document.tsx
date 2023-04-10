@@ -13,6 +13,7 @@ import { cryptoUtils } from "../App";
 import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import UserInviteModal from "../components/UserInviteModal";
+import { sendGroupKeyToServer } from "../utils/networkUtils";
 
 interface User {
   userName: string;
@@ -63,21 +64,23 @@ export default function Document() {
     setIsModalOpen(false);
   };
 
-
-
-
   const handleDocumentJoin = async (documentInvite: any) => {
-    const { documentID, participantID, leaderID, preKeyBundle } = documentInvite;
+    const axios = useAxios();
+    const { documentID, participantID, leaderID, preKeyBundle } =
+      documentInvite;
+    
     const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
-    console.log(parsedPreKeyBundle);
-    const firstMessageFromHandshake = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(parsedPreKeyBundle);
+    const firstMessageFromHandshake =
+      await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
+        parsedPreKeyBundle
+      );
     cryptoUtils.groupKeyStore = {
-			nonce: firstMessageFromHandshake.toString().slice(0, 48),
-			groupKey: firstMessageFromHandshake.toString().slice(48),
+      nonce: firstMessageFromHandshake.toString().slice(0, 48),
+      groupKey: firstMessageFromHandshake.toString().slice(48),
     };
-    await cryptoUtils.saveGroupKeyStoreToIDB(cryptoUtils.groupKeyStore);
-    console.log(cryptoUtils.groupKeyStore);
-  }
+    await cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore, documentID);
+    await sendGroupKeyToServer(documentID, axios);
+  };
 
   /**
    * This function is called when the user clicks on the invite button.
@@ -96,7 +99,7 @@ export default function Document() {
     const preKeyBundleOfParticipants: preKeyBundle[] =
       preKeyBundleRequestResponse.data;
     const userInvitesArray: userInvites[] = [];
-    const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
+    const groupKey = await cryptoUtils.generateGroupKeyStoreBundle(documentID);
     for (const preKeyBundle of preKeyBundleOfParticipants) {
       const participantID = preKeyBundle.userID;
       const preKeyBundleForHandshake: InitServerInfo = {
@@ -106,6 +109,7 @@ export default function Document() {
           PreKey: preKeyBundle.preKeyBundle.SignedPreKey.PreKey,
         },
       };
+      
       const firstMessageFromHandshake =
         await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
           participantID,
@@ -142,8 +146,6 @@ export default function Document() {
   if (joinedDocument) {
     const { documentInvite } = state;
     handleDocumentJoin(documentInvite);
-
-
   }
 
   return (
@@ -152,7 +154,13 @@ export default function Document() {
         {" "}
         Invite Users{" "}
       </Button>
-      <UserInviteModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} selectedUserList={selectedUserList} setSelectedUserList={setSelectedUserList} handleInvite={ handleInvite} />
+      <UserInviteModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        selectedUserList={selectedUserList}
+        setSelectedUserList={setSelectedUserList}
+        handleInvite={handleInvite}
+      />
       <Tiptap />
     </div>
   );

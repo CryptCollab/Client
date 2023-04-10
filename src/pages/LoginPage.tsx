@@ -14,8 +14,8 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { UserLoginDataState } from "../features/userData/userLoginData-slice";
 import useAxios from "../hooks/useAxios";
+import { getUserKeyStoreFromServerAndInitKeyStore } from "../utils/networkUtils";
 import { cryptoUtils } from "../App";
-import { sendPreKeyBundleToServer } from "../utils/networkUtils";
 
 const theme = createTheme();
 
@@ -25,7 +25,6 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const axios = useAxios()
-  console.log(axios.defaults.baseURL)
 
 
   //used in error attribute in TextField
@@ -45,8 +44,7 @@ export default function Login() {
         }, {
         withCredentials: true
       });
-      console.log(loginResponse.data);
-      sendPreKeyBundleToServer(loginResponse.data, axios);
+      await getUserKeyStoreFromServerAndInitKeyStore(loginResponse.data.userData?.userID as string, axios);
       user.loginUser(loginResponse.data);
       const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
       navigate(redirectURL);
@@ -56,6 +54,8 @@ export default function Login() {
       setIsError(error?.response?.data);
     }
   };
+
+  
 
   /*return (
       <div className={styles.main}>
@@ -70,6 +70,8 @@ export default function Login() {
           <span> New User? Sign up <Link to="/register">here</Link></span>
       </div>
   )*/
+
+
 
   return (
     <ThemeProvider theme={theme}>

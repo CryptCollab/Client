@@ -17,7 +17,7 @@ import { CryptoUtils } from "../utils/crypto";
 import { cryptoUtils } from "../App";
 import { InitServerInfo } from "../cryptolib/x3dh";
 import { UserLoginDataState } from "../features/userData/userLoginData-slice";
-import { sendPreKeyBundleToServer } from "../utils/networkUtils";
+import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
 
 const theme = createTheme();
 
@@ -44,7 +44,8 @@ export default function SignUp() {
           withCredentials: true,
         }
       );
-      sendPreKeyBundleToServer(registrationResponse.data, axios);
+      sendPreKeyBundleAndUserKeyStoreToServer(registrationResponse.data, axios);
+
       user.loginUser(registrationResponse.data);
       const redirectURL: string =
         searchParams.get("redirectURL") ?? "/dashboard";
