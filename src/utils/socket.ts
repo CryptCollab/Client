@@ -86,14 +86,14 @@ export class socketHandlers {
 		return preKeyBundle;
 	};
 
-	initiateSecureHandshake = async (preKeyBundle: InitServerInfo, userID: string) => {
-		const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
-		const inviterMessageBundle = await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
-			userID,
-			preKeyBundle,
-			groupKey
-		);
-	};
+	// initiateSecureHandshake = async (preKeyBundle: InitServerInfo, userID: string) => {
+	// 	const groupKey = await cryptoUtils.generateGroupKeyStoreBundle();
+	// 	const inviterMessageBundle = await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
+	// 		userID,
+	// 		preKeyBundle,
+	// 		groupKey
+	// 	);
+	// };
 
 	/**
  * @deprecated 
@@ -115,52 +115,52 @@ export class socketHandlers {
 	 * @param preKeyBundle 
 	 * @param participant 
 	 */
-	processPreKeyBundleAndSendFirstMessageToParticipant = async (preKeyBundle: InitServerInfo, participant: string) => {
-		//console.log("Received preKeyBundle from server");
-		const firstGroupMessage = await cryptoUtils.encryptGroupMessage(
-			"Welcome to the document!!"
-		);
-		const message = await cryptoUtils.generateGroupKeyStoreBundle();
-		const firstMessageBundle: InitSenderInfo =
-			await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
-				participant,
-				preKeyBundle,
-				message
-			);
-		this.socketInstance.emit(
-			"firstMessage",
-			firstMessageBundle,
-			participant,
-			firstGroupMessage
-		);
-	};
+	// processPreKeyBundleAndSendFirstMessageToParticipant = async (preKeyBundle: InitServerInfo, participant: string) => {
+	// 	//console.log("Received preKeyBundle from server");
+	// 	const firstGroupMessage = await cryptoUtils.encryptGroupMessage(
+	// 		"Welcome to the document!!"
+	// 	);
+	// 	const message = await cryptoUtils.generateGroupKeyStoreBundle();
+	// 	const firstMessageBundle: InitSenderInfo =
+	// 		await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
+	// 			participant,
+	// 			preKeyBundle,
+	// 			message
+	// 		);
+	// 	this.socketInstance.emit(
+	// 		"firstMessage",
+	// 		firstMessageBundle,
+	// 		participant,
+	// 		firstGroupMessage
+	// 	);
+	// };
 
 	/**
 	 * @deprecated
 	 * @param firstMessageBundle 
 	 * @param firstGroupMessage 
 	 */
-	processFirstMessageFromGroupLeader = async (firstMessageBundle: InitSenderInfo, firstGroupMessage: string) => {
-		//console.log(`Received first message from `, firstMessageBundle);
-		const decryptedData = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
-			firstMessageBundle
-		);
-		cryptoUtils.groupKeyStore = {
-			nonce: decryptedData.toString().slice(0, 48),
-			groupKey: decryptedData.toString().slice(48),
-		};
-		cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore);
-		//console.log(cryptoUtils.groupKeyStore);
-		const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
-			firstGroupMessage
-		);
-		console.log(decryptedGroupMessage);
-		const firstPeerMessage = await cryptoUtils.encryptGroupMessage(
-			"Thanks for letting me join the document!!"
-		);
-		this.socketInstance.emit("groupMessage", firstPeerMessage);
-		//return groupKeyStore;
-	};
+	// processFirstMessageFromGroupLeader = async (firstMessageBundle: InitSenderInfo, firstGroupMessage: string) => {
+	// 	//console.log(`Received first message from `, firstMessageBundle);
+	// 	const decryptedData = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
+	// 		firstMessageBundle
+	// 	);
+	// 	cryptoUtils.groupKeyStore = {
+	// 		nonce: decryptedData.toString().slice(0, 48),
+	// 		groupKey: decryptedData.toString().slice(48),
+	// 	};
+	// 	cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore);
+	// 	//console.log(cryptoUtils.groupKeyStore);
+	// 	const decryptedGroupMessage = await cryptoUtils.decryptGroupMessage(
+	// 		firstGroupMessage
+	// 	);
+	// 	console.log(decryptedGroupMessage);
+	// 	const firstPeerMessage = await cryptoUtils.encryptGroupMessage(
+	// 		"Thanks for letting me join the document!!"
+	// 	);
+	// 	this.socketInstance.emit("groupMessage", firstPeerMessage);
+	// 	//return groupKeyStore;
+	// };
 
 	connectHandler = (doc: Doc) => {
 		this.socketInstance.connect();
