@@ -54,8 +54,4 @@ const TypeAhead: React.FC<TypeAheadProps> = ({ selectedUserList, setSelectedUser
     );
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 01bf715 (sending document invites implemented successfully)
 export default TypeAhead;
