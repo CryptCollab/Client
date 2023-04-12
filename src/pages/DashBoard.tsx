@@ -3,15 +3,16 @@ import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button } from "react-bootstrap";
 import useLoadingDone from "../hooks/useLoadingDone";
-import useAuth from "../hooks/useAuth";
+import UserInviteModal from "../components/UserInviteModal";
 import { cryptoUtils } from "../App";
 import { getUserKeyStoreFromServerAndInitKeyStore, sendGroupKeyToServer } from "../utils/networkUtils";
+import useAuth from "../hooks/useAuth";
 import { _genRandomBuffer, genEncryptedMasterKey } from "easy-web-crypto";
 
 interface User {
-	userName: string;
-	email: string;
-	userId: string;
+  userName: string;
+  email: string;
+  userId: string;
 }
 
 type userInvites = {
@@ -62,16 +63,6 @@ export default function DashBoard() {
     const data = await protectedAxios.get("/api/document/invites");
     return data.data;
   };
-
-  useEffect(() => {
-    getDocumentInvites().then((data) => {
-      setDocumentInvites(data);
-    });
-  }, []);
-
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-
 
 
   useEffect(() => {
