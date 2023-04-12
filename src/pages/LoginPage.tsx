@@ -49,9 +49,10 @@ export default function Login() {
   ) => {
     event.preventDefault();
 
+    console.log(event.target["user"].value, event.target["password"].value)
     try {
       const loginResponse = await axios.post<UserLoginDataState>("/api/login", {
-        user: event.target["user"].value,
+        email: event.target["user"].value,
         password: event.target["password"].value,
       });
       await getUserKeyStoreFromServerAndInitKeyStore(loginResponse.data.userData?.userID as string, axios);

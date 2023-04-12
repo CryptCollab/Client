@@ -55,6 +55,7 @@ export default function Document() {
     useState<DocumentMetaData | null>(null);
   const axios = useAxios();
   const { state } = useLocation();
+  useLoadingDone();
   const { documentID, joinedDocument } = state;
 
   const openInviteModal = () => {
