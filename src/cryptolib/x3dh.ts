@@ -27,7 +27,7 @@ import {
 	wipe
 } from "./lib/util";
 import { Buffer } from "buffer";
-import { Store } from "secure-webstore";
+import { Dump, Store } from "../cryptolib/secureIDBStorage";
 /**
  * Initial server info.
  *
@@ -35,23 +35,23 @@ import { Store } from "secure-webstore";
  * the X3DH handshake from a sender's side.
  */
 export type InitServerInfo = {
-    IdentityKey: string,
-    SignedPreKey: {
-        Signature: string,
-        PreKey: string
-    },
-    OneTimeKey?: string
+	IdentityKey: string,
+	SignedPreKey: {
+		Signature: string,
+		PreKey: string
+	},
+	OneTimeKey?: string
 };
 
 /**
  * Initial information about a sender
  */
 export type InitSenderInfo = {
-    Sender: string,
-    IdentityKey: string,
-    EphemeralKey: string,
-    OneTimeKey?: string | null,
-    CipherText: string
+	Sender: string,
+	IdentityKey: string,
+	EphemeralKey: string,
+	OneTimeKey?: string | null,
+	CipherText: string
 };
 
 /**
@@ -69,10 +69,10 @@ export type SignedBundle = { signature: string, bundle: string[] };
  * Initialization information for receiving a handshake message.
  */
 type RecipientInitWithSK = {
-    IK: Ed25519PublicKey,
-    EK: X25519PublicKey,
-    SK: CryptographyKey,
-    OTK?: string | null
+	IK: Ed25519PublicKey,
+	EK: X25519PublicKey,
+	SK: CryptographyKey,
+	OTK?: string | null
 };
 
 
@@ -111,9 +111,9 @@ export class X3DH {
 	}
 
 	/**
-     * Initialize the key store.
-     * @returns {Promise<void>}
-    */
+	 * Initialize the key store.
+	 * @returns {Promise<void>}
+	*/
 
 	async initKeyStore(): Promise<void> {
 		const identityString = await this.identityKeyManager.getMyIdentityString();
@@ -123,33 +123,54 @@ export class X3DH {
 
 
 	/**
-     * Destroy the key store.
-     * @returns {Promise<void>}
-     */
-	async destoryKeyStore(): Promise<void> {
+	 * Destroy the key store.
+	 * @returns {Promise<void>}
+	 */
+	async destroyKeyStore(): Promise<void> {
 		await this.keyStore.init();
 		await this.keyStore.destroy();
 	}
 
+	/**
+	 * Exports the encrypted key store to a dump object.
+	 * @returns {Promise<Dump>}
+	 */
+
+	async exportKeyStore(): Promise<Dump> {
+		await this.keyStore.init();
+		return await this.keyStore.export();
+	}
 
 	/**
-     * @returns {SodiumPlus}
-     */
+	 * Imports the encrypted key store from a dump object.
+	 * @param dump
+	 * @returns {Promise<void>} 
+	 */
+
+	async importKeyStore(dump: Dump): Promise<void> {
+		await this.initKeyStore();
+		await this.keyStore.init();
+		await this.keyStore.import(dump);
+	}
+
+
+	/**
+	 * @returns {SodiumPlus}
+	 */
 	async getSodium(): Promise<SodiumPlus> {
 		if (!this.sodium) {
 			this.sodium = await SodiumPlus.auto();
 		}
 		return this.sodium;
 	}
-
 	/**
-     * Generates and signs a bundle of one-time keys.
-     *
-     * Useful for pushing more OTKs to the server.
-     *
-     * @param {Ed25519SecretKey} signingKey
-     * @param {number} numKeys
-     */
+	 * Generates and signs a bundle of one-time keys.
+	 *
+	 * Useful for pushing more OTKs to the server.
+	 *
+	 * @param {Ed25519SecretKey} signingKey
+	 * @param {number} numKeys
+	 */
 	async generateOneTimeKeys(
 		signingKey: Ed25519SecretKey,
 		numKeys: number
@@ -165,7 +186,7 @@ export class X3DH {
 				preKeySecret: bundle[0].secretKey
 			};
 			//this.keyStore.preKeyPair = prekeyPair;
-			await this.identityKeyManager.persistPrekeyPair(prekeyPair);
+			await this.identityKeyManager.savePreKeyPair(prekeyPair, this.keyStore);
 		}
 		// Hex-encode all the public keys
 		const encodedBundle: string[] = [];
@@ -183,11 +204,11 @@ export class X3DH {
 
 
 	/**
-     * Get the shared key when sending an initial message.
-     *
-     * @param {InitServerInfo} res
-     * @param {Ed25519SecretKey} senderKey
-     */
+	 * Get the shared key when sending an initial message.
+	 *
+	 * @param {InitServerInfo} res
+	 * @param {Ed25519SecretKey} senderKey
+	 */
 	async initSenderGetSK(
 		res: InitServerInfo,
 		senderKey: Ed25519SecretKey
@@ -264,12 +285,12 @@ export class X3DH {
 	}
 
 	/**
-     * Initialize for sending.
-     *
-     * @param {string} recipientIdentity
-     * @param {InitClientFunction} getServerResponse
-     * @param {string|Buffer} message
-     */
+	 * Initialize for sending.
+	 *
+	 * @param {string} recipientIdentity
+	 * @param {InitClientFunction} getServerResponse
+	 * @param {string|Buffer} message
+	 */
 	async initSend(
 		recipientIdentity: string,
 		getServerResponse: InitClientFunction,
@@ -282,7 +303,7 @@ export class X3DH {
 		const identity = await this.identityKeyManager.getIdentityKeypair(this.keyStore);
 		const senderSecretKey = identity.identitySecret;
 		const senderPublicKey: Ed25519PublicKey = identity.identityPublic;
-		//console.log(`Identity public being sent: `, senderPublicKey.getBuffer);
+		//console.log(`Identity public being sent: `, senderPublicKey.getBuffer());
 		// Stub out a call to get the server response:
 		const response = await getServerResponse(recipientIdentity);
 		// Get the shared symmetric key (and other handshake data):
@@ -312,12 +333,12 @@ export class X3DH {
 	}
 
 	/**
-     * Get the shared key when receiving an initial message.
-     *
-     * @param {InitSenderInfo} req
-     * @param {Ed25519SecretKey} identitySecret
-     * @param preKeySecret
-     */
+	 * Get the shared key when receiving an initial message.
+	 *
+	 * @param {InitSenderInfo} req
+	 * @param {Ed25519SecretKey} identitySecret
+	 * @param preKeySecret
+	 */
 	async initRecvGetSk(
 		req: InitSenderInfo,
 		identitySecret: Ed25519SecretKey,
@@ -329,6 +350,7 @@ export class X3DH {
 		const senderIdentityKey = new Ed25519PublicKey(
 			await sodium.sodium_hex2bin(req.IdentityKey),
 		);
+		//console.log(`Sender identity key: `, senderIdentityKey.getBuffer());
 		const ephemeral = new X25519PublicKey(
 			await sodium.sodium_hex2bin(req.EphemeralKey),
 		);
@@ -383,22 +405,23 @@ export class X3DH {
 	}
 
 	/**
-     * Initialize keys for receiving an initial message.
-     * Returns the initial plaintext message on success.
-     * Throws on failure.
-     *
-     * @param {InitSenderInfo} req
-     * @returns {(string|Buffer)[]}
-     */
+	 * Initialize keys for receiving an initial message.
+	 * Returns the initial plaintext message on success.
+	 * Throws on failure.
+	 *
+	 * @param {InitSenderInfo} req
+	 * @returns {(string|Buffer)[]}
+	 */
 	async initRecv(req: InitSenderInfo): Promise<(string | Buffer)[]> {
 		const sodium = await this.getSodium();
 		const { identitySecret, identityPublic } = await this.identityKeyManager.getIdentityKeypair(this.keyStore);
-		const { preKeySecret } = await this.identityKeyManager.getPreKeypair();
+		const { preKeySecret } = await this.identityKeyManager.getPreKeypair(this.keyStore);
 		const { Sender, SK, IK } = await this.initRecvGetSk(
 			req,
 			identitySecret,
 			preKeySecret
 		);
+		
 		// console.log("Shared symmetric key at recipient side: ")
 		// console.log(SK.getBuffer())
 		const assocData = await sodium.sodium_bin2hex(
@@ -423,12 +446,12 @@ export class X3DH {
 	}
 
 	/**
-     * Encrypt the next message to send to the recipient.
-     *
-     * @param {string} recipient
-     * @param {string|Buffer} message
-     * @returns {string}
-     */
+	 * Encrypt the next message to send to the recipient.
+	 *
+	 * @param {string} recipient
+	 * @param {string|Buffer} message
+	 * @returns {string}
+	 */
 	async encryptNext(recipient: string, message: string | Buffer): Promise<string> {
 		return this.encryptor.encrypt(
 			message,
@@ -438,12 +461,12 @@ export class X3DH {
 	}
 
 	/**
-     * Decrypt the next message received by the sender.
-     *
-     * @param {string} sender
-     * @param {string} encrypted
-     * @returns {string|Buffer}
-     */
+	 * Decrypt the next message received by the sender.
+	 *
+	 * @param {string} sender
+	 * @param {string} encrypted
+	 * @returns {string|Buffer}
+	 */
 	async decryptNext(sender: string, encrypted: string) {
 		return this.encryptor.decrypt(
 			encrypted,
@@ -453,10 +476,10 @@ export class X3DH {
 	}
 
 	/**
-     * Sets the identity string for the current user.
-     *
-     * @param {string} id
-     */
+	 * Sets the identity string for the current user.
+	 *
+	 * @param {string} id
+	 */
 	async setIdentityString(id: string): Promise<void> {
 		return this.identityKeyManager.setMyIdentityString(id);
 	}
