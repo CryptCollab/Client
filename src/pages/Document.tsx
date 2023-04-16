@@ -13,7 +13,13 @@ import { cryptoUtils } from "../App";
 import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import useLoadingDone from "../hooks/useLoadingDone";
-import { sendGroupKeyToServer } from "../utils/networkUtils";
+import {
+  getDocumentMetaData,
+  getGroupKeyFromServer,
+  getUserKeyStoreFromServerAndInitKeyStore,
+  sendGroupKeyToServer,
+} from "../utils/networkUtils";
+import useAuth from "../hooks/useAuth";
 
 interface User {
   userName: string;
@@ -54,9 +60,10 @@ export default function Document() {
   const [documentMetaData, setDocumentMetaData] =
     useState<DocumentMetaData | null>(null);
   const axios = useAxios();
+  const auth = useAuth();
   const { state } = useLocation();
   useLoadingDone();
-  const { documentID, joinedDocument } = state;
+  const { documentID, newDocumentJoin, existingDocumentJoin } = state;
 
   const openInviteModal = () => {
     setIsModalOpen(true);
@@ -65,11 +72,10 @@ export default function Document() {
     setIsModalOpen(false);
   };
 
-  const handleDocumentJoin = async (documentInvite: any) => {
-    const axios = useAxios();
+  const handleNewDocumentJoin = async (documentInvite: any) => {
     const { documentID, participantID, leaderID, preKeyBundle } =
       documentInvite;
-    
+
     const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
     const firstMessageFromHandshake =
       await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
@@ -81,6 +87,19 @@ export default function Document() {
     };
     await cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore, documentID);
     await sendGroupKeyToServer(documentID, axios);
+  };
+
+  const handleExistingDocumentJoin = async () => {
+    let groupKey = await cryptoUtils.returnFromKeyStore(
+      documentID
+    );
+    if (!groupKey) {
+      console.log("No group key found in IDB. Fetching from server");
+      const groupKeyDump = await getGroupKeyFromServer(documentID, axios);
+      await cryptoUtils.importIntoStore(groupKeyDump);
+    }
+    groupKey = await cryptoUtils.loadGroupKeyStoreFromIDB(documentID);
+    cryptoUtils.groupKeyStore = groupKey;
   };
 
   /**
@@ -110,7 +129,7 @@ export default function Document() {
           PreKey: preKeyBundle.preKeyBundle.SignedPreKey.PreKey,
         },
       };
-      
+
       const firstMessageFromHandshake =
         await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
           participantID,
@@ -132,22 +151,20 @@ export default function Document() {
   };
 
   useEffect(() => {
-    const getDocumentMetaData = async () => {
-      const response = await axios.get<DocumentMetaData>("/api/document", {
-        params: {
-          documentID,
-        },
+    getDocumentMetaData(axios, documentID).then((documentMetaData) => {
+      setDocumentMetaData(documentMetaData as DocumentMetaData);
+      getUserKeyStoreFromServerAndInitKeyStore(
+        auth.userData?.userID as string,
+        axios
+      ).then(() => {
+        if (!newDocumentJoin) handleExistingDocumentJoin();
       });
-      setDocumentMetaData(response.data as DocumentMetaData);
-    };
-    getDocumentMetaData();
+    });
   }, []);
-
-  if (joinedDocument) {
+  if (newDocumentJoin) {
     const { documentInvite } = state;
-    handleDocumentJoin(documentInvite);
+    handleNewDocumentJoin(documentInvite);
   }
-
   return (
     <div className={styles.root}>
       <Button variant="primary" onClick={openInviteModal}>
@@ -159,7 +176,10 @@ export default function Document() {
           <Modal.Title>Search here</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <TypeAhead selectedUserList={selected} setSelectedUserList={setSelected} />
+          <TypeAhead
+            selectedUserList={selected}
+            setSelectedUserList={setSelected}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleInvite}>

@@ -66,4 +66,31 @@ export const sendGroupKeyToServer = async (documentID: string, axios: AxiosInsta
     });
 
     
- }
+}
+ 
+
+export const getDocumentMetaData = async (axios: AxiosInstance, documentID: string) => {
+    const response = await axios.get("/api/document", {
+      params: {
+        documentID,
+      },
+    });
+    return response.data;
+};
+  
+
+export const getGroupKeyFromServer = async (documentID: string, axios: AxiosInstance) => {
+    const queryResponse = await axios.get("/api/groupkey", {
+        params: {
+          documentID,
+        },
+      });
+      const { groupKey, groupKeyiv } = queryResponse.data;
+      const groupKeyDump = {
+        [documentID]: {
+          ciphertext: groupKey,
+          iv: groupKeyiv,
+        }
+      }
+    return groupKeyDump;
+}

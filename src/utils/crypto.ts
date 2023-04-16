@@ -212,7 +212,7 @@ export class CryptoUtils {
 			throw new Error("KeyStore not initialized");
 		}
 		await this.x3dh.keyStore.init();
-		const value = await this.x3dh.keyStore.get(key);
+		const value = await this.x3dh.keyStore.get(key as string);
 		return value;
 	}
 
@@ -222,23 +222,10 @@ export class CryptoUtils {
 		await this.x3dh.keyStore.init();
 	}
 
-	// testFunction = async () => {
-	// 	await this.setIdentity("testIdentity");
-	// 	await this.generateAndsaveIdentityKeysToIDB();
-	// 	await this.x3dh.keyStore.init();
-	// 	const dump = await this.x3dh.exportKeyStore();
-	// 	console.log((dump.masterKey));
-	// 	await this.x3dh.keyStore.clear();
-	// 	await this.x3dh.initKeyStore();
-	// 	await this.x3dh.importKeyStore(dump);
-	// 	await this.x3dh.keyStore.init();
-	// 	const dump2 = await this.x3dh.exportKeyStore();
-	// 	console.log((dump2.masterKey));
-	// 	// const passphrase = "testPassphrase";
-	// 	// const salt = await _genRandomBuffer(16);
-	// 	// const masterkey = await genEncryptedMasterKey(passphrase, salt, 10000);
-	// 	// console.log(masterkey);
-	// }
+	importIntoStore = async (dump: Dump) => {
+		await this.x3dh.keyStore.init();
+		await this.x3dh.keyStore.import(dump);
+	}
 
 }
 

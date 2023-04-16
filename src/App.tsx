@@ -24,7 +24,6 @@ export default function App() {
 
 
 	useEffect(() => {
-		console.log("loading:", loading);
 		if (loading) {
 			refresh().then(() => { setLoading(false) });
 		} else {
