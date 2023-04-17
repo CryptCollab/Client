@@ -14,6 +14,7 @@ import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import useLoadingDone from "../hooks/useLoadingDone";
 import {
+  deleteDocumentInvitaion,
   getDocumentMetaData,
   getGroupKeyFromServer,
   getUserKeyStoreFromServerAndInitKeyStore,
@@ -87,7 +88,9 @@ export default function Document() {
     };
     await cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore, documentID);
     await sendGroupKeyToServer(documentID, axios);
+    await deleteDocumentInvitaion(documentID, axios);
   };
+
 
   const handleExistingDocumentJoin = async () => {
     let groupKey = await cryptoUtils.returnFromKeyStore(
@@ -100,6 +103,7 @@ export default function Document() {
     }
     groupKey = await cryptoUtils.loadGroupKeyStoreFromIDB(documentID);
     cryptoUtils.groupKeyStore = groupKey;
+    await deleteDocumentInvitaion(documentID, axios);
   };
 
   /**

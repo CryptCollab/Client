@@ -94,3 +94,12 @@ export const getGroupKeyFromServer = async (documentID: string, axios: AxiosInst
       }
     return groupKeyDump;
 }
+
+
+export const deleteDocumentInvitaion = async (documentID: string, axios: AxiosInstance) => {
+    await axios.delete("/api/document/invites", {
+        data: {
+          documentID,
+        },
+      });
+}

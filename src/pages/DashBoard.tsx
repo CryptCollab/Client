@@ -76,7 +76,6 @@ export default function DashBoard() {
   };
   const getExistingDocuments = async () => {
     const data = await protectedAxios.get("/api/document/existingdocuments");
-    console.log(data.data);
     return data.data;
   };
 
