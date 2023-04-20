@@ -19,6 +19,7 @@ interface User {
 }
 
 type userInvites = {
+  documentName: string;
   documentID: string;
   participantID: string;
   leaderID: string;
@@ -39,18 +40,23 @@ export default function DashBoard() {
   // });
   useLoadingDone();
 
-  const handleDocumentCreation = async () => {
+  const handleDocumentCreation: React.FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+    const documentName = event.target["documentName"].value;
+    console.log(documentName);
     const data = await protectedAxios.post("/api/document", {
-      userID: auth.userData?.userID,
+      documentName,
     });
     console.log("Document Created");
     const documentID: string = data.data;
     const groupKeys = await cryptoUtils.generateGroupKeys();
     await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
-    sendGroupKeyToServer(documentID, protectedAxios);
+    await sendGroupKeyToServer(documentID, protectedAxios);
     navigate("/document/" + documentID, {
       replace: true,
-      state: { documentID },
+      state: {
+        documentID,
+      },
     });
   };
 
@@ -60,6 +66,7 @@ export default function DashBoard() {
       state: {
         documentID: documentInvite.documentID,
         newDocumentJoin: true,
+        existingDocumentJoin: false,
         documentInvite,
       },
     });
@@ -70,6 +77,7 @@ export default function DashBoard() {
       replace: true,
       state: {
         documentID: documentID,
+        newDocumentJoin: false,
         existingDocumentJoin: true,
       },
     });
@@ -90,6 +98,7 @@ export default function DashBoard() {
     });
     getExistingDocuments().then((data) => {
       setExistingDocuments(data);
+      console.log(data);
     });
 
     getUserKeyStoreFromServerAndInitKeyStore(
@@ -101,13 +110,19 @@ export default function DashBoard() {
   return (
     <>
       <div>DashBoard</div>
-      <button onClick={handleDocumentCreation}>Create Document</button>
+      <form onSubmit={handleDocumentCreation}>
+        <label>
+          Document Name:
+          <input type="text" name="documentName" />
+        </label>
+        <button type="submit">Create Document</button>
+      </form>
       <br />
       <h1>Document Invites</h1>
       {documentInvites.map((invite: userInvites) => (
         <ul key={invite.entityID}>
           <li>
-            {invite.documentID}
+            {invite.documentName}
             <Button
               variant="primary"
               onClick={() => handleNewDocumentJoining(invite)}
@@ -119,13 +134,13 @@ export default function DashBoard() {
       ))}
       <br />
       <h1>Documents you have worked on: </h1>
-      {existingdocuments.map((document: any) => (
-        <ul key={document}>
+      {existingdocuments.map((documentInfo: any) => (
+        <ul key={documentInfo.documentID}>
           <li>
-            {document}
+            {documentInfo.documentName}
             <Button
               variant="primary"
-              onClick={() => handleExistingDocumentJoining(document)}
+              onClick={() => handleExistingDocumentJoining(documentInfo.documentID)}
             >
               Open
             </Button>

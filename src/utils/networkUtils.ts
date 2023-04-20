@@ -59,7 +59,7 @@ export const getUserKeyStoreFromServerAndInitKeyStore = async (userID: string, a
 export const sendGroupKeyToServer = async (documentID: string, axios: AxiosInstance) => {
     const keyStoreDump = await cryptoUtils.returnKeyStoreAsDump();
     const groupKey = keyStoreDump[documentID];
-    await axios.post("/api/groupKey", {
+    await axios.post("/api/groupkey", {
       documentID: documentID,
       groupKey: groupKey.ciphertext,
       groupKeyiv: groupKey.iv,

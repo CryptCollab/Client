@@ -64,7 +64,7 @@ export default function Document() {
   const auth = useAuth();
   const { state } = useLocation();
   useLoadingDone();
-  const { documentID, newDocumentJoin, existingDocumentJoin } = state;
+  const { documentID, newDocumentJoin, existingDocumentJoin, newDocumentCreation} = state;
 
   const openInviteModal = () => {
     setIsModalOpen(true);
@@ -160,15 +160,17 @@ export default function Document() {
       getUserKeyStoreFromServerAndInitKeyStore(
         auth.userData?.userID as string,
         axios
-      ).then(() => {
-        if (!newDocumentJoin) handleExistingDocumentJoin();
-      });
+      );
     });
   }, []);
   if (newDocumentJoin) {
     const { documentInvite } = state;
     handleNewDocumentJoin(documentInvite);
   }
+  if (existingDocumentJoin) {
+    handleExistingDocumentJoin();
+  }
+  
   return (
     <div className={styles.root}>
       <Button variant="primary" onClick={openInviteModal}>
