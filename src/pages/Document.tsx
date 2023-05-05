@@ -14,6 +14,10 @@ import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import useLoadingDone from "../hooks/useLoadingDone";
 import { sendGroupKeyToServer } from "../utils/networkUtils";
+import DocNavBar from '../components/DocNavBar';
+
+type LocalOption = Record<string, User>;
+
 
 interface User {
   userName: string;
@@ -148,29 +152,10 @@ export default function Document() {
     handleDocumentJoin(documentInvite);
   }
 
-  return (
-    <div className={styles.root}>
-      <Button variant="primary" onClick={openInviteModal}>
-        {" "}
-        Invite Users{" "}
-      </Button>
-      <Modal show={isModalOpen} onHide={openInviteModal}>
-        <Modal.Header>
-          <Modal.Title>Search here</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <TypeAhead selectedUserList={selected} setSelectedUserList={setSelected} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleInvite}>
-            Invite
-          </Button>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Tiptap />
-    </div>
-  );
+    return (
+        <div className={styles.root}>
+            <DocNavBar/>
+            <Tiptap />
+        </div>
+    )
 }
