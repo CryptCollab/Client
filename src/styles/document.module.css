@@ -4,8 +4,7 @@
     width: 100vw;
     place-items: center;
 }*/
-.root {
-    display: grid;
+.root {    
     margin: 5 rem auto;
     height: 100vh;
     width: 100vw;

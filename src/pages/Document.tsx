@@ -8,6 +8,7 @@ import { Option } from 'react-bootstrap-typeahead/types/types';
 import { type } from 'os';
 import useAxios from '../hooks/useAxios';
 import useLoadingDone from '../hooks/useLoadingDone';
+import DocNavBar from '../components/DocNavBar';
 
 type LocalOption = Record<string, User>;
 interface User {
@@ -44,6 +45,7 @@ export default function Document() {
 
     return (
         <div className={styles.root}>
+            <DocNavBar/>
             <Tiptap />
         </div>
     )
