@@ -7,12 +7,16 @@ import useLoadingDone from "../hooks/useLoadingDone";
 import styles from "../styles/login-signup.module.css";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import { CryptoUtils } from "../utils/crypto";
+import { cryptoUtils } from "../App";
+import { InitServerInfo } from "../cryptolib/x3dh";
+import { UserLoginDataState } from "../features/userData/userLoginData-slice";
+import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
 
 const theme = createTheme();
 
 //TODO add better error mesaage display
 export default function SignUp() {
-
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const axios = useAxios();
@@ -29,15 +33,15 @@ export default function SignUp() {
       }, {
         withCredentials: true
       });
-
+      
+      sendPreKeyBundleAndUserKeyStoreToServer(userData.data, axios);
       user.loginUser(userData.data);
       const redirectURL: string = searchParams.get("redirectURL") ?? "/dashboard";
       navigate(redirectURL);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
+      console.log("NHi ho rha kya")
     }
-
   };
   return (
     <div className={styles.root}>
