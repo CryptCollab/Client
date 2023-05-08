@@ -13,7 +13,7 @@ export const fireEventHandlers = (document: collabDocument) => {
 	socketInstance.on("connect", socket.onConnect);
 	socketInstance.on("disconnect", socket.onDisconnect);
 	socketInstance.on("documentUpdate", document.applyDocumentUpdate);
-	socketInstance.on("usersInRoom", socket.processUsersInRoom);
+	// socketInstance.on("usersInRoom", socket.processUsersInRoom);
 	socketInstance.on("groupMessage", socket.processGroupMessage);
 	socketInstance.on("awarenessUpdate", socket.applyAwarenessUpdate);
   

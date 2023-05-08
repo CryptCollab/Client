@@ -48,8 +48,6 @@ export default function Login() {
     event
   ) => {
     event.preventDefault();
-
-    console.log(event.target["user"].value, event.target["password"].value)
     try {
       const loginResponse = await axios.post<UserLoginDataState>("/api/login", {
         email: event.target["user"].value,

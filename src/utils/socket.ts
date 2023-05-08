@@ -13,8 +13,11 @@ export class socketHandlers {
 	socketURL: string;
 	isConnected: boolean | undefined;
 	awareness: any;
+	documentID!: string;
+	updateCounter: number = 0;
 	constructor(socketURL: string | undefined) {
 		this.socketURL = socketURL || "http://localhost:8080";
+		this.updateCounter = 0;
 		this.socketInstance = io(this.socketURL, {
 			autoConnect: false,
 			transports: ["websocket"],
@@ -28,7 +31,9 @@ export class socketHandlers {
 	};
 	onConnect = async () => {
 		console.log("Connected to server with id: ", this.socketInstance.id);
+		this.socketInstance
 		this.isConnected = true;
+		this.socketInstance.emit("documentID", this.documentID);
 	};
 	onDisconnect = async () => {
 		//await cryptoUtils.destroyIdentityKeyStore();
@@ -50,8 +55,15 @@ export class socketHandlers {
 			return;
 		}
 		//console.log("Distributing update");
+		this.updateCounter++;
+		if (this.updateCounter % 30 === 0) { 
+			const encodedState = document.returnEncodedStateVector();
+			const encryptedState = await cryptoUtils.encryptGroupMessage(fromUint8Array(encodedState));
+			this.socketInstance.emit("documentState", this.documentID, encryptedState);
+		}
+		
 		const encryptedUpdate = await cryptoUtils.encryptGroupMessage(fromUint8Array(update));
-		this.socketInstance.emit("documentUpdate", encryptedUpdate);
+		this.socketInstance.emit("documentUpdate", this.documentID ,encryptedUpdate);
 	};
 
 	distributeAwarenessUpdate = (changeObject: { added: []; updated: []; removed: []; }, origin: any) => {
@@ -62,7 +74,7 @@ export class socketHandlers {
 		const { added, updated, removed } = changeObject;
 		const changedClients = added.concat(updated).concat(removed);
 		const encodedAwarenessState = awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients);
-		this.socketInstance.emit("awarenessUpdate", fromUint8Array(encodedAwarenessState));
+		this.socketInstance.emit("awarenessUpdate", this.documentID ,fromUint8Array(encodedAwarenessState));
 	};
 
 	setAwarenessState = () => {
@@ -78,9 +90,10 @@ export class socketHandlers {
 		awarenessProtocol.applyAwarenessUpdate(this.awareness, decodedAwarenessUpdate, null);
 	};
 
-	getPreKeyBundleWithUserID = async (userID: string) => {
-		this.socketInstance.emit("getPreKeyBundleWithUserID", userID);
-	};
+
+	// getPreKeyBundleWithUserID = async (userID: string) => {
+	// 	this.socketInstance.emit("getPreKeyBundleWithUserID", userID);
+	// };
 
 	preKeyBundleRecievedFromServer = async (preKeyBundle: InitServerInfo) => {
 		return preKeyBundle;
@@ -95,26 +108,18 @@ export class socketHandlers {
 	// 	);
 	// };
 
-	/**
- * @deprecated 
- * @param users 
- */
-	processUsersInRoom = async (users: any) => {
-		console.log("Users in room", users);
-		if (users === 1) {
-			await cryptoUtils.generateGroupKeys();
-		}
-		else {
-			console.log("Joined the document!!");
-			socket.socketInstance.emit("joinedDocument", "joined the document");
-		}
-	};
+	// processUsersInRoom = async (users: any) => {
+	// 	console.log("Users in room", users);
+	// 	if (users === 1) {
+	// 		await cryptoUtils.generateGroupKeys();
+	// 	}
+	// 	else {
+	// 		console.log("Joined the document!!");
+	// 		socket.socketInstance.emit("joinedDocument", "joined the document");
+	// 	}
+	// };
 
-	/**
-	 * @deprecated
-	 * @param preKeyBundle 
-	 * @param participant 
-	 */
+
 	// processPreKeyBundleAndSendFirstMessageToParticipant = async (preKeyBundle: InitServerInfo, participant: string) => {
 	// 	//console.log("Received preKeyBundle from server");
 	// 	const firstGroupMessage = await cryptoUtils.encryptGroupMessage(
@@ -135,11 +140,7 @@ export class socketHandlers {
 	// 	);
 	// };
 
-	/**
-	 * @deprecated
-	 * @param firstMessageBundle 
-	 * @param firstGroupMessage 
-	 */
+
 	// processFirstMessageFromGroupLeader = async (firstMessageBundle: InitSenderInfo, firstGroupMessage: string) => {
 	// 	//console.log(`Received first message from `, firstMessageBundle);
 	// 	const decryptedData = await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
@@ -169,6 +170,7 @@ export class socketHandlers {
 		this.socketInstance.on("disconnect", this.onDisconnect);
 		this.socketInstance.on("groupMessage", this.processGroupMessage);
 		this.socketInstance.on("documentUpdate", document.applyDocumentUpdate);
+		this.socketInstance.on("documentState", document.setDocumentState)
 		this.socketInstance.on("awarenessUpdate", this.applyAwarenessUpdate);
 		this.socketInstance.on("preKeyBundleWithUserID", this.preKeyBundleRecievedFromServer);
 		this.awareness.on("update", this.distributeAwarenessUpdate);

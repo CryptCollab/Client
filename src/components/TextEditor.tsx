@@ -133,8 +133,10 @@ const MenuBar = ({ editor }) => {
   )
 }
 //console.log(TextStyle);
-const Tiptap = () => {
-	useEffect(() => {
+const Tiptap = (props: { documentID: string; }) => {
+	const documentID = props.documentID;
+  useEffect(() => {
+    socket.documentID = documentID;
 		socket.connectHandler(document.ydoc);
 		document.ydoc.on("update", socket.distributeDocumentUpdate);
     

@@ -55,6 +55,8 @@ export default function DashBoard() {
     navigate("/document/" + documentID, {
       replace: true,
       state: {
+        documentName,
+        newDocumentCreation: true,
         documentID,
       },
     });
@@ -72,11 +74,12 @@ export default function DashBoard() {
     });
   };
 
-  const handleExistingDocumentJoining = async (documentID: string) => {
+  const handleExistingDocumentJoining = async (documentID: string, documentName: string) => {
     navigate("/document/" + documentID, {
       replace: true,
       state: {
-        documentID: documentID,
+        documentName,
+        documentID,
         newDocumentJoin: false,
         existingDocumentJoin: true,
       },
@@ -98,7 +101,6 @@ export default function DashBoard() {
     });
     getExistingDocuments().then((data) => {
       setExistingDocuments(data);
-      console.log(data);
     });
 
     getUserKeyStoreFromServerAndInitKeyStore(
@@ -140,7 +142,7 @@ export default function DashBoard() {
             {documentInfo.documentName}
             <Button
               variant="primary"
-              onClick={() => handleExistingDocumentJoining(documentInfo.documentID)}
+              onClick={() => handleExistingDocumentJoining(documentInfo.documentID, documentInfo.documentName)}
             >
               Open
             </Button>

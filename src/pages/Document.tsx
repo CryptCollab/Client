@@ -38,6 +38,7 @@ type DocumentMetaData = {
 };
 
 type userInvites = {
+  documentName: string;
   documentID: string;
   participantID: string;
   leaderID: string;
@@ -62,9 +63,17 @@ export default function Document() {
     useState<DocumentMetaData | null>(null);
   const axios = useAxios();
   const auth = useAuth();
-  const { state } = useLocation();
+  let { state } = useLocation();
   useLoadingDone();
-  const { documentID, newDocumentJoin, existingDocumentJoin, newDocumentCreation} = state;
+  const {
+    documentName,
+    documentID,
+    newDocumentJoin,
+    existingDocumentJoin,
+    newDocumentCreation,
+    documentInvite
+  } = state;
+  
 
   const openInviteModal = () => {
     setIsModalOpen(true);
@@ -74,7 +83,7 @@ export default function Document() {
   };
 
   const handleNewDocumentJoin = async (documentInvite: any) => {
-    const { documentID, participantID, leaderID, preKeyBundle } =
+    const { preKeyBundle } =
       documentInvite;
 
     const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
@@ -91,11 +100,8 @@ export default function Document() {
     await deleteDocumentInvitaion(documentID, axios);
   };
 
-
   const handleExistingDocumentJoin = async () => {
-    let groupKey = await cryptoUtils.returnFromKeyStore(
-      documentID
-    );
+    let groupKey = await cryptoUtils.returnFromKeyStore(documentID);
     if (!groupKey) {
       console.log("No group key found in IDB. Fetching from server");
       const groupKeyDump = await getGroupKeyFromServer(documentID, axios);
@@ -103,7 +109,7 @@ export default function Document() {
     }
     groupKey = await cryptoUtils.loadGroupKeyStoreFromIDB(documentID);
     cryptoUtils.groupKeyStore = groupKey;
-    await deleteDocumentInvitaion(documentID, axios);
+    //await deleteDocumentInvitaion(documentID, axios);
   };
 
   /**
@@ -141,6 +147,7 @@ export default function Document() {
           groupKey
         );
       const userInvite: userInvites = {
+        documentName: documentName,
         documentID: documentID,
         participantID: participantID,
         leaderID: documentMetaData!.leaderID,
@@ -160,17 +167,20 @@ export default function Document() {
       getUserKeyStoreFromServerAndInitKeyStore(
         auth.userData?.userID as string,
         axios
-      );
+      ).then(() => {
+        if (newDocumentJoin) {
+          handleNewDocumentJoin(documentInvite);
+        }
+        if (existingDocumentJoin||newDocumentCreation) {
+          handleExistingDocumentJoin();
+        }
+      });
+
+      state = {};
     });
   }, []);
-  if (newDocumentJoin) {
-    const { documentInvite } = state;
-    handleNewDocumentJoin(documentInvite);
-  }
-  if (existingDocumentJoin) {
-    handleExistingDocumentJoin();
-  }
-  
+
+
   return (
     <div className={styles.root}>
       <Button variant="primary" onClick={openInviteModal}>
@@ -196,7 +206,7 @@ export default function Document() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Tiptap />
+      <Tiptap documentID={documentID as string} />
     </div>
   );
 }
