@@ -13,11 +13,17 @@ import { cryptoUtils } from "../App";
 import { InitServerInfo, InitSenderInfo } from "../cryptolib/x3dh";
 import { ConstructionOutlined } from "@mui/icons-material";
 import useLoadingDone from "../hooks/useLoadingDone";
-import { sendGroupKeyToServer } from "../utils/networkUtils";
-import DocNavBar from '../components/DocNavBar';
+import {
+  deleteDocumentInvitaion,
+  getDocumentMetaData,
+  getGroupKeyFromServer,
+  getUserKeyStoreFromServerAndInitKeyStore,
+  sendGroupKeyToServer,
+} from "../utils/networkUtils";
+import useAuth from "../hooks/useAuth";
+import DocNavBar from "../components/DocNavBar";
 
 type LocalOption = Record<string, User>;
-
 
 interface User {
   userName: string;
@@ -35,6 +41,7 @@ type DocumentMetaData = {
 };
 
 type userInvites = {
+  documentName: string;
   documentID: string;
   participantID: string;
   leaderID: string;
@@ -58,9 +65,17 @@ export default function Document() {
   const [documentMetaData, setDocumentMetaData] =
     useState<DocumentMetaData | null>(null);
   const axios = useAxios();
-  const { state } = useLocation();
+  const auth = useAuth();
+  let { state } = useLocation();
   useLoadingDone();
-  const { documentID, joinedDocument } = state;
+  const {
+    documentName,
+    documentID,
+    newDocumentJoin,
+    existingDocumentJoin,
+    newDocumentCreation,
+    documentInvite,
+  } = state;
 
   const openInviteModal = () => {
     setIsModalOpen(true);
@@ -69,11 +84,9 @@ export default function Document() {
     setIsModalOpen(false);
   };
 
-  const handleDocumentJoin = async (documentInvite: any) => {
-    const axios = useAxios();
-    const { documentID, participantID, leaderID, preKeyBundle } =
-      documentInvite;
-    
+  const handleNewDocumentJoin = async (documentInvite: any) => {
+    const { preKeyBundle } = documentInvite;
+
     const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
     const firstMessageFromHandshake =
       await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
@@ -85,6 +98,19 @@ export default function Document() {
     };
     await cryptoUtils.saveGroupKeysToIDB(cryptoUtils.groupKeyStore, documentID);
     await sendGroupKeyToServer(documentID, axios);
+    await deleteDocumentInvitaion(documentID, axios);
+  };
+
+  const handleExistingDocumentJoin = async () => {
+    let groupKey = await cryptoUtils.returnFromKeyStore(documentID);
+    if (!groupKey) {
+      console.log("No group key found in IDB. Fetching from server");
+      const groupKeyDump = await getGroupKeyFromServer(documentID, axios);
+      await cryptoUtils.importIntoStore(groupKeyDump);
+    }
+    groupKey = await cryptoUtils.loadGroupKeyStoreFromIDB(documentID);
+    cryptoUtils.groupKeyStore = groupKey;
+    //await deleteDocumentInvitaion(documentID, axios);
   };
 
   /**
@@ -114,7 +140,7 @@ export default function Document() {
           PreKey: preKeyBundle.preKeyBundle.SignedPreKey.PreKey,
         },
       };
-      
+
       const firstMessageFromHandshake =
         await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
           participantID,
@@ -122,6 +148,7 @@ export default function Document() {
           groupKey
         );
       const userInvite: userInvites = {
+        documentName: documentName,
         documentID: documentID,
         participantID: participantID,
         leaderID: documentMetaData!.leaderID,
@@ -136,26 +163,28 @@ export default function Document() {
   };
 
   useEffect(() => {
-    const getDocumentMetaData = async () => {
-      const response = await axios.get<DocumentMetaData>("/api/document", {
-        params: {
-          documentID,
-        },
+    getDocumentMetaData(axios, documentID).then((documentMetaData) => {
+      setDocumentMetaData(documentMetaData as DocumentMetaData);
+      getUserKeyStoreFromServerAndInitKeyStore(
+        auth.userData?.userID as string,
+        axios
+      ).then(() => {
+        if (newDocumentJoin) {
+          handleNewDocumentJoin(documentInvite);
+        }
+        if (existingDocumentJoin || newDocumentCreation) {
+          handleExistingDocumentJoin();
+        }
       });
-      setDocumentMetaData(response.data as DocumentMetaData);
-    };
-    getDocumentMetaData();
+
+      state = {};
+    });
   }, []);
 
-  if (joinedDocument) {
-    const { documentInvite } = state;
-    handleDocumentJoin(documentInvite);
-  }
-
-    return (
-        <div className={styles.root}>
-            <DocNavBar/>
-            <Tiptap />
-        </div>
-    )
+  return (
+    <div className={styles.root}>
+      <DocNavBar />
+      <Tiptap documentID={documentID} />
+    </div>
+  );
 }

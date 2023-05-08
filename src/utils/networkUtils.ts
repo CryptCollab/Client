@@ -58,12 +58,48 @@ export const getUserKeyStoreFromServerAndInitKeyStore = async (userID: string, a
 
 export const sendGroupKeyToServer = async (documentID: string, axios: AxiosInstance) => {
     const keyStoreDump = await cryptoUtils.returnKeyStoreAsDump();
-    const groupKey = keyStoreDump[documentID];
-    await axios.post("/api/groupKey", {
+  const groupKey = keyStoreDump[documentID];
+    await axios.post("/api/groupkey", {
       documentID: documentID,
       groupKey: groupKey.ciphertext,
       groupKeyiv: groupKey.iv,
     });
 
     
- }
+}
+ 
+
+export const getDocumentMetaData = async (axios: AxiosInstance, documentID: string) => {
+    const response = await axios.get("/api/document", {
+      params: {
+        documentID,
+      },
+    });
+    return response.data;
+};
+  
+
+export const getGroupKeyFromServer = async (documentID: string, axios: AxiosInstance) => {
+    const queryResponse = await axios.get("/api/groupkey", {
+        params: {
+          documentID,
+        },
+      });
+      const { groupKey, groupKeyiv } = queryResponse.data;
+      const groupKeyDump = {
+        [documentID]: {
+          ciphertext: groupKey,
+          iv: groupKeyiv,
+        }
+      }
+    return groupKeyDump;
+}
+
+
+export const deleteDocumentInvitaion = async (documentID: string, axios: AxiosInstance) => {
+    await axios.delete("/api/document/invites", {
+        data: {
+          documentID,
+        },
+      });
+}
