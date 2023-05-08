@@ -21,6 +21,9 @@ import {
   sendGroupKeyToServer,
 } from "../utils/networkUtils";
 import useAuth from "../hooks/useAuth";
+import DocNavBar from "../components/DocNavBar";
+
+type LocalOption = Record<string, User>;
 
 interface User {
   userName: string;
@@ -71,9 +74,8 @@ export default function Document() {
     newDocumentJoin,
     existingDocumentJoin,
     newDocumentCreation,
-    documentInvite
+    documentInvite,
   } = state;
-  
 
   const openInviteModal = () => {
     setIsModalOpen(true);
@@ -83,8 +85,7 @@ export default function Document() {
   };
 
   const handleNewDocumentJoin = async (documentInvite: any) => {
-    const { preKeyBundle } =
-      documentInvite;
+    const { preKeyBundle } = documentInvite;
 
     const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
     const firstMessageFromHandshake =
@@ -171,7 +172,7 @@ export default function Document() {
         if (newDocumentJoin) {
           handleNewDocumentJoin(documentInvite);
         }
-        if (existingDocumentJoin||newDocumentCreation) {
+        if (existingDocumentJoin || newDocumentCreation) {
           handleExistingDocumentJoin();
         }
       });
@@ -180,33 +181,10 @@ export default function Document() {
     });
   }, []);
 
-
   return (
     <div className={styles.root}>
-      <Button variant="primary" onClick={openInviteModal}>
-        {" "}
-        Invite Users{" "}
-      </Button>
-      <Modal show={isModalOpen} onHide={openInviteModal}>
-        <Modal.Header>
-          <Modal.Title>Search here</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <TypeAhead
-            selectedUserList={selected}
-            setSelectedUserList={setSelected}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleInvite}>
-            Invite
-          </Button>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Tiptap documentID={documentID as string} />
+      <DocNavBar />
+      <Tiptap documentID={documentID} />
     </div>
   );
 }

@@ -1,7 +1,4 @@
-.text-editor-area{
-    border-radius:5px;
-    border:1px solid grey;    
-}
+
 .menu-bar{
     padding-bottom: 5px;
     display: flex;
@@ -28,8 +25,9 @@ button.is-active{
     border-top: 1px solid grey;
     background: white;
     border-radius: 0 0 5px 5px;
-    min-height: 300px;
+    min-height: 100vh;
     min-width: 650px;
+    outline:none;
 }
 .ProseMirror {
   > * + * {

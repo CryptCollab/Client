@@ -10,7 +10,31 @@ import ListItem from '@tiptap/extension-list-item'
 import TextStyle from '@tiptap/extension-text-style'
 import '../styles/styles.scss'
 import Underline from '@tiptap/extension-underline'
-import {FaBold,FaItalic, FaStrikethrough,FaHeading,FaListOl,FaListUl,FaQuoteLeft,FaUndo,FaRedo,FaUnderline,FaRulerHorizontal} from 'react-icons/fa'
+import Highlight from '@tiptap/extension-highlight'
+import TextAlign from "@tiptap/extension-text-align";
+import ColorPicker from "./ColorPicker";
+import {
+  FaBold,
+  FaItalic, 
+  FaStrikethrough,
+  FaHeading,
+  FaListOl,
+  FaListUl,
+  FaQuoteLeft,
+  FaUndo,
+  FaRedo,
+  FaUnderline,
+  FaRulerHorizontal,
+  FaHighlighter,
+  FaAlignLeft,
+  FaAlignCenter,
+  FaAlignRight,
+  FaAlignJustify,
+  FaParagraph,
+  FaCode,
+  FaCodeBranch,
+} from 'react-icons/fa'
+
 
 export const document = new collabDocument();
 
@@ -62,6 +86,37 @@ const MenuBar = ({ editor }) => {
         <FaUnderline/>
       </button>
       <button
+        onClick={() => editor.chain().focus().toggleHighlight({color:'#FFFF00'}).run()}
+        className={editor.isActive("highlight") ? 'is-active' : ''}
+      >
+        <FaHighlighter/>
+      </button>  
+        {/*<ColorPicker editor={editor}/>*/}
+      <button
+        onClick={() => editor.chain().focus().setTextAlign('left').run()}
+        className={editor.isActive({textAlign:'left'}) ? 'is-active' : ''}
+      >
+        <FaAlignLeft/>
+      </button>  
+      <button
+        onClick={() => editor.chain().focus().setTextAlign('center').run()}
+        className={editor.isActive({textAlign:'center'}) ? 'is-active' : ''}
+      >
+        <FaAlignCenter/>
+      </button>   
+      <button
+        onClick={() => editor.chain().focus().setTextAlign('right').run()}
+        className={editor.isActive({textAlign:'right'}) ? 'is-active' : ''}
+      >
+        <FaAlignRight/>
+      </button>   
+      <button
+        onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+        className={editor.isActive({textAlign:'justify'}) ? 'is-active' : ''}
+      >
+        <FaAlignJustify/>
+      </button>    
+      <button
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={
           !editor.can()
@@ -73,14 +128,19 @@ const MenuBar = ({ editor }) => {
         className={editor.isActive('strike') ? 'is-active' : ''}
       >
         <FaStrikethrough/>
-      </button>       
+      </button>  
       <button
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
       >
         <FaHeading/>
-      </button>
-      
+      </button>  
+      <button
+        onClick={() => editor.chain().focus().setParagraph().run()}
+        className={editor.isActive('paragraph') ? 'is-active' : ''}
+      >
+        <FaParagraph/>
+      </button>      
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={editor.isActive('bulletList') ? 'is-active' : ''}
@@ -98,6 +158,25 @@ const MenuBar = ({ editor }) => {
         className={editor.isActive('blockquote') ? 'is-active' : ''}
       >
         <FaQuoteLeft/>
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleCode().run()}
+        disabled={
+          !editor.can()
+            .chain()
+            .focus()
+            .toggleCode()
+            .run()
+        }
+        className={editor.isActive('code') ? 'is-active' : ''}
+      >
+        <FaCode/>
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        className={editor.isActive('codeBlock') ? 'is-active' : ''}
+      >
+        <FaCodeBranch/>
       </button>
       <button onClick={() => editor.chain().focus().setHorizontalRule().run()}>
         <FaRulerHorizontal/>
@@ -148,7 +227,19 @@ const Tiptap = (props: { documentID: string; }) => {
 	const editor = useEditor({
 		extensions: [
 			Underline,
-			Color.configure({ types: [TextStyle.name, ListItem.name] }),			
+      Highlight.configure({
+        multicolor:true,
+      }),
+      TextAlign.configure({
+        types:['heading','paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
+        defaultAlignment: 'left',
+      }),
+      TextStyle,
+			//Color.configure({ types: [TextStyle.name, ListItem.name] }),			
+      Color.configure({ 
+        types: ['TextStyle'],
+      }),
 			StarterKit.configure({
 				// The Collaboration extension comes with its own history handling
 				history: false,
