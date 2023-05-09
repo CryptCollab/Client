@@ -11,9 +11,9 @@ export default function refreshUserData(): () => Promise<UserData | null> {
 			const userData = await axios.get<UserData>("http://localhost:8080/api/refresh", {
 				withCredentials: true,
 				headers: {
-					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
-					'Expires': '0',
+					"Cache-Control": "no-cache",
+					"Pragma": "no-cache",
+					"Expires": "0",
 				}
 			});
 			return userData.data;
@@ -21,5 +21,5 @@ export default function refreshUserData(): () => Promise<UserData | null> {
 			console.error(err);
 		}
 		return null;
-	}
+	};
 }

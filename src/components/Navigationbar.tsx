@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
 import { Link } from "react-router-dom";
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import Button from 'react-bootstrap/Button';
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import Button from "react-bootstrap/Button";
 
 
 export default function Navigationbar() {
@@ -27,7 +27,7 @@ export default function Navigationbar() {
 	const linkStyle = {
 		margin: "1rem",
 		textDecoration: "none",
-		color: 'white'
+		color: "white"
 	};
 
 	if (auth.isUserLoggedIn()) {
@@ -39,7 +39,7 @@ export default function Navigationbar() {
 							src="/logo_50_dark.png"
 							width="auto"
 							height="auto"
-						/>{' '}
+						/>{" "}
 						CryptCollab
 					</Navbar.Brand>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -50,7 +50,7 @@ export default function Navigationbar() {
 							<Button onClick={handleLogout} variant="link"
 								style={{
 									textDecoration: "none",
-									color: 'white'
+									color: "white"
 								}}>
 								Logout
 							</Button>
@@ -70,7 +70,7 @@ export default function Navigationbar() {
 							width="auto"
 							height="40"
 
-						/>{' '}
+						/>{" "}
 						CryptCollab
 					</Navbar.Brand>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />

@@ -34,8 +34,8 @@ export default function DashBoard() {
 	const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
 	const openInviteModal = () => {
-		setIsModalOpen(true)
-	}
+		setIsModalOpen(true);
+	};
 
 
 	return (<>

@@ -100,14 +100,14 @@ export class CryptoUtils {
 			groupKey: await this.returnHexEncodedGroupKey(),
 		};
 		await this.x3dh.keyStore.set("groupKeyStore", this.groupKeyStore);
-		console.log("Group Key Store generated and saved to IDB")
+		console.log("Group Key Store generated and saved to IDB");
 	};
 
 	saveGroupKeyStoreToIDB = async (groupKeyStore: GroupKeyStore) => {
 		if (!this.x3dh.keyStore)
 			await this.x3dh.initKeyStore();
 		await this.x3dh.keyStore.set("groupKeyStore", groupKeyStore);
-		console.log("Group Key Store saved to IDB")
+		console.log("Group Key Store saved to IDB");
 	};
 
 	loadGroupKeyStoreFromIDB = async (): Promise<GroupKeyStore> => {
@@ -123,7 +123,7 @@ export class CryptoUtils {
 		const groupKeyStore: GroupKeyStore = await this.loadGroupKeyStoreFromIDB();
 		const groupKeyStoreBundle = groupKeyStore.groupKey + groupKeyStore.nonce;
 		return groupKeyStoreBundle;
-	}
+	};
 
 	generatePreKeyBundle = async (): Promise<InitServerInfo> => {
 		const identityKeys: IdentityKeyPair = await this.generateAndsaveIdentityKeysToIDB();

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import AuthContext from "../context/AuthContext";
+import AuthContext from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function useAuth() {
@@ -20,4 +20,4 @@ export default function useAuth() {
 		},
 		logoutUser: (): void => { user.setUserData(null); }
 	};
-};
+}

@@ -5,9 +5,8 @@ interface UserData {
     userName: string;
     userID: string;
     accessToken: string;
-};
-interface AuthContextType {
-    userData: UserData | null;
-    setUserData: React.Dispatch<React.SetStateAction<UserData | null>>
 }
+
+
+
 

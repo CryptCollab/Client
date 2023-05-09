@@ -22,7 +22,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({  requireUnAuthenticated }) 
 
 	return (outletLogic)
 		? <Outlet />
-		: <Navigate to={(auth.isUserLoggedIn()) ? "/dashboard" : "/login"} state={{ redirectURL: location.pathname }} replace />
+		: <Navigate to={(auth.isUserLoggedIn()) ? "/dashboard" : "/login"} state={{ redirectURL: location.pathname }} replace />;
 
 
 };

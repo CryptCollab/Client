@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useContext, useEffect } from "react";
-import useAuth from "./useAuth";
 import useRefreshToken from "./useRefreshToken";
-import AuthContext from "../context/AuthContext";
+import AuthContext from "../contexts/AuthContext";
 
 const privateAxios = axios.create({
 	baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8080/",
