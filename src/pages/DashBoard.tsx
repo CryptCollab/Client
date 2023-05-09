@@ -73,7 +73,7 @@ export default function DashBoard() {
       },
     });
   };
-
+	
   const handleExistingDocumentJoining = async (documentID: string, documentName: string) => {
     navigate("/document/" + documentID, {
       replace: true,

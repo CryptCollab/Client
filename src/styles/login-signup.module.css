@@ -36,6 +36,8 @@
     margin-top: 0.5em;
 }
 
+
+
 @media screen and (max-width: 576px) {
     .welcomeText {
         font-size: 1.23em;

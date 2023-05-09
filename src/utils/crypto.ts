@@ -125,7 +125,7 @@ export class CryptoUtils {
 		const groupKeyStore: GroupKeyStore = await this.loadGroupKeyStoreFromIDB(documentID);
 		const groupKeyStoreBundle = groupKeyStore.nonce+groupKeyStore.groupKey;
 		return groupKeyStoreBundle;
-	}
+	};
 
 	generatePreKeyBundle = async (): Promise<InitServerInfo> => {
 		const identityKeys: IdentityKeyPair = await this.generateAndsaveIdentityKeysToIDB();

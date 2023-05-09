@@ -4,10 +4,10 @@ import { useLoadingContext } from "react-router-loading";
 
 
 export default function useLoadingDone() {
-    const loadingContext = useLoadingContext();
+	const loadingContext = useLoadingContext();
 
-    useEffect(() => {
-        loadingContext.done();
-    }, []);
+	useEffect(() => {
+		loadingContext.done();
+	}, []);
 
 }
