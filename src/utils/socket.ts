@@ -29,10 +29,10 @@ export class socketHandlers {
 		this.awareness = new awarenessProtocol.Awareness(ydoc);
 		this.setAwarenessState();
 	};
-	onConnect = async () => {
+	onConnect =  () => {
 		console.log("Connected to server with id: ", this.socketInstance.id);
-		this.socketInstance
 		this.isConnected = true;
+		
 		this.socketInstance.emit("documentID", this.documentID);
 	};
 	onDisconnect = async () => {
