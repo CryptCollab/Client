@@ -29,7 +29,6 @@ export default function App() {
 
 
 	useEffect(() => {
-
 		if (loading) {
 			refresh().then((fetchedUserData) => {
 				setLoading(false);

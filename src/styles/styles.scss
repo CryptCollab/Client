@@ -1,0 +1,86 @@
+
+.menu-bar{
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.menu-bar button{
+    outline:none;
+    border:none;
+    background: none;
+    color:rgb(70,70,70);
+    cursor:pointer;
+}
+
+button.is-active{
+    background: rgb(197, 197, 197);
+    padding:2px 3px;
+    border-radius:2px;
+}
+
+/* Basic editor styles */
+.ProseMirror{
+    padding: 10px;
+    border-top: 1px solid grey;
+    background: white;
+    border-radius: 0 0 5px 5px;
+    min-height: 100vh;
+    min-width: 650px;
+    outline:none;
+}
+.ProseMirror {
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  ul,
+  ol {
+    padding: 0 1rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.1;
+  }
+
+  code {
+    background-color: #cfcfcf;
+    color: #616161;
+  }
+
+  pre {
+    background: #0D0D0D;
+    color: #FFF;
+    font-family: 'JetBrainsMono', monospace;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+
+    code {
+      color: inherit;
+      padding: 0;
+      background: none;
+      font-size: 0.8rem;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  blockquote {
+    padding-left: 1rem;
+    border-left: 2px solid #9c9c9c;
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid #9c9c9c;
+    margin: 2rem 0;
+  }
+}

@@ -6,7 +6,6 @@ export default function refreshUserData(): () => Promise<UserData | null> {
 	 */
 	return async () => {
 		try {
-			console.log("GETTING to http://localhost:8080/api/refresh");
 
 			const userData = await axios.get<UserData>("http://localhost:8080/api/refresh", {
 				withCredentials: true,

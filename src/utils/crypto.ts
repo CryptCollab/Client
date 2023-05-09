@@ -1,6 +1,8 @@
 import { SodiumPlus, Ed25519PublicKey, CryptographyKey } from "sodium-plus";
-import { X3DH, InitServerInfo, InitSenderInfo, SignedBundle, IdentityKeyPair } from "../cryptolib/x3dh";
+import { X3DH, InitServerInfo, InitSenderInfo, SignedBundle, IdentityKeyPair, PreKeyPair } from "../cryptolib/x3dh";
 import { Buffer } from "buffer";
+import { Dump, Store } from "../cryptolib/secureIDBStorage";
+import { _genRandomBuffer, decrypt, encrypt, genEncryptedMasterKey, decryptMasterKey, genAESKey } from "easy-web-crypto";
 
 
 export type GroupKeyStore = {
@@ -27,7 +29,7 @@ export class CryptoUtils {
 	};
 
 	destroyIdentityKeyStore = async () => {
-		await this.x3dh.destoryKeyStore();
+		await this.x3dh.destroyKeyStore();
 	};
 
 	hexEncodeIdentityPublic = async (identityPublic: Ed25519PublicKey): Promise<string> => {
@@ -92,36 +94,36 @@ export class CryptoUtils {
 		return identityKeys;
 	};
 
-	generateAndSaveGroupKeyStoreToIDB = async () => {
-		if (!this.x3dh.keyStore)
-			await this.x3dh.initKeyStore();
+	generateGroupKeys = async () => {
+		// if (!this.x3dh.keyStore)
+		// 	await this.x3dh.initKeyStore();
 		this.groupKeyStore = {
 			nonce: await this.returnHexEncodedNonce(),
 			groupKey: await this.returnHexEncodedGroupKey(),
 		};
-		await this.x3dh.keyStore.set("groupKeyStore", this.groupKeyStore);
-		console.log("Group Key Store generated and saved to IDB");
+		return this.groupKeyStore;
+
 	};
 
-	saveGroupKeyStoreToIDB = async (groupKeyStore: GroupKeyStore) => {
+	saveGroupKeysToIDB = async (groupKeyStore: GroupKeyStore, documentID: string) => {
 		if (!this.x3dh.keyStore)
 			await this.x3dh.initKeyStore();
-		await this.x3dh.keyStore.set("groupKeyStore", groupKeyStore);
-		console.log("Group Key Store saved to IDB");
+		await this.x3dh.keyStore.init();
+		await this.x3dh.keyStore.set(documentID, groupKeyStore);
 	};
 
-	loadGroupKeyStoreFromIDB = async (): Promise<GroupKeyStore> => {
+	loadGroupKeyStoreFromIDB = async (documentID: string): Promise<GroupKeyStore> => {
 		if (!this.x3dh.keyStore) {
 			throw new Error("KeyStore not initialized");
 		}
-		const groupKeyStore: GroupKeyStore = await this.x3dh.keyStore.get("groupKeyStore");
-		console.log("Group Key Store loaded from IDB");
+		await this.x3dh.keyStore.init();
+		const groupKeyStore: GroupKeyStore = await this.x3dh.keyStore.get(documentID);
 		return groupKeyStore;
 	};
 
-	generateGroupKeyStoreBundle = async (): Promise<string> => {
-		const groupKeyStore: GroupKeyStore = await this.loadGroupKeyStoreFromIDB();
-		const groupKeyStoreBundle = groupKeyStore.groupKey + groupKeyStore.nonce;
+	generateGroupKeyStoreBundle = async (documentID: string): Promise<string> => {
+		const groupKeyStore: GroupKeyStore = await this.loadGroupKeyStoreFromIDB(documentID);
+		const groupKeyStoreBundle = groupKeyStore.nonce+groupKeyStore.groupKey;
 		return groupKeyStoreBundle;
 	};
 
@@ -143,6 +145,11 @@ export class CryptoUtils {
 
 	returnPreKeyBundleAsPromise = async (): Promise<InitServerInfo> => {
 		return this.preKeyBundleFromParticipant;
+	};
+
+	returnPreKeyPair = async (): Promise<PreKeyPair> => {
+		const preKeyPair = await this.x3dh.identityKeyManager.getPreKeypair(this.x3dh.keyStore);
+		return preKeyPair;
 	};
 
 	establishSharedKeyAndEncryptFirstMessage = async (recipientID: string, preKeyBundle: InitServerInfo, message: string) => {
@@ -174,8 +181,54 @@ export class CryptoUtils {
 		return decryptedMessage.toString();
 	};
 
+	setIdentityAndReturnPreKeyBundle = async (identity: string): Promise<InitServerInfo> => {
+		await this.setIdentity(identity);
+		const preKeyBundle: InitServerInfo = await this.generatePreKeyBundle();
+		return preKeyBundle;
+	};
+
+	returnKeyStoreAsDump = async (): Promise<Dump> => {
+		if (!this.x3dh.keyStore) {
+			throw new Error("KeyStore not initialized");
+		}
+		const encryptedKeyStore = await this.x3dh.exportKeyStore();
+		return encryptedKeyStore;
+	}
+
+	initKeyStoreFromDump = async (dump: Dump) => {
+		await this.x3dh.importKeyStore(dump);
+	}
+
+	initialiseKeyStore = async () => {
+		await this.x3dh.initKeyStore();
+	}
+
+	doesKeyStoreExist = (): boolean => {
+		return this.x3dh.keyStore !== undefined;
+	}
+
+	returnFromKeyStore = async (key: string): Promise<any> => {
+		if (!this.x3dh.keyStore) {
+			throw new Error("KeyStore not initialized");
+		}
+		await this.x3dh.keyStore.init();
+		const value = await this.x3dh.keyStore.get(key as string);
+		return value;
+	}
+
+	setIdentityAndReferenceKeyStore = async (identity: string) => {
+		await this.setIdentity(identity);
+		await this.initialiseKeyStore();
+		await this.x3dh.keyStore.init();
+	}
+
+	importIntoStore = async (dump: Dump) => {
+		await this.x3dh.keyStore.init();
+		await this.x3dh.keyStore.import(dump);
+	}
 
 }
+
 
 
 
