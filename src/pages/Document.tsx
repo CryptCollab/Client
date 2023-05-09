@@ -1,5 +1,6 @@
 import Tiptap from "../components/TextEditor";
 import styles from "../styles/document.module.css";
+// ES2015
 import { AsyncTypeahead } from "react-bootstrap-typeahead"; // ES2015
 import { useEffect, useState } from "react";
 import { Option } from "react-bootstrap-typeahead/types/types";
