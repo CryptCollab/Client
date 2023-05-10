@@ -10,6 +10,7 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import * as yup from "yup";
 import ParamErrorListSchema, { ParamError } from "../schema/ParamErrorSchema";
 import { RotatingLines } from "react-loader-spinner";
+import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
 
 const emailSchema = yup.string().email().required();
 export default function SignUp() {
@@ -49,11 +50,11 @@ export default function SignUp() {
 				"email": email,
 				"password": password
 			});
-
+			sendPreKeyBundleAndUserKeyStoreToServer(userData.data, axios);
 			userAuth.loginUser(userData.data);
 		}
 		catch (error: any) {
-      
+
 			if (!ParamErrorListSchema.isValidSync(error?.response?.data?.errors)) {
 				errorHandler.addError(error);
 				return;
@@ -87,13 +88,13 @@ export default function SignUp() {
 		<div className={styles.root}>
 			<img src='logo_200_light.png' width="auto" height="150px" />
 			<span className={styles.welcomeText}>
-        Register with <code className={styles.title}>Cryptcollab</code>
+				Register with <code className={styles.title}>Cryptcollab</code>
 			</span>
 			<div className={styles.container} >
 				<Form onSubmit={handleSignUpSubmit} noValidate>
 					<Form.Group className="mb-3" controlId="formBasicUsername" >
 						<Form.Label>
-              Username
+							Username
 						</Form.Label>
 						<Form.Control type="text" placeholder="Enter username" name="username" isInvalid={usernameError !== ""} />
 						<Form.Control.Feedback type="invalid">
@@ -102,7 +103,7 @@ export default function SignUp() {
 					</Form.Group>
 					<Form.Group className="mb-3" controlId="formBasicEmail" >
 						<Form.Label>
-              Email address
+							Email address
 						</Form.Label>
 						<Form.Control type="email" placeholder="Enter email" name="email" isInvalid={emailError !== ""} />
 						<Form.Control.Feedback type="invalid">
@@ -112,7 +113,7 @@ export default function SignUp() {
 
 					<Form.Group className="mb-3" controlId="formBasicPassword">
 						<Form.Label>
-              Password
+							Password
 						</Form.Label>
 						<Form.Control type="password" placeholder="Password" name="password" isInvalid={passwordError !== ""} autoComplete="new-password" />
 						<Form.Control.Feedback type="invalid">
@@ -130,7 +131,7 @@ export default function SignUp() {
 					</Button>
 				</Form>
 				<div className={styles.footer}>
-          Already registered? <Link to="/register" className={styles.registerLink}>Log in here</Link>
+					Already registered? <Link to="/register" className={styles.registerLink}>Log in here</Link>
 				</div>
 			</div>
 		</div >

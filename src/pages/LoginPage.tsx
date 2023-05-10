@@ -9,6 +9,7 @@ import useLoadingDone from "../hooks/useLoadingDone";
 import { RotatingLines } from "react-loader-spinner";
 import useErrorHandler from "../hooks/useErrorHandler";
 import ParamErrorListSchema, { ParamError } from "../schema/ParamErrorSchema";
+import { getUserKeyStoreFromServerAndInitKeyStore } from "../utils/networkUtils";
 
 export default function Login() {
 	useLoadingDone();
@@ -42,7 +43,7 @@ export default function Login() {
 					"user": user,
 					"password": password
 				});
-
+			await getUserKeyStoreFromServerAndInitKeyStore(userData.data.userID, axios);
 			userAuth.loginUser(userData.data);
 		}
 		catch (error: any) {
@@ -79,13 +80,13 @@ export default function Login() {
 		<div className={styles.root}>
 			<img src='logo_200_light.png' width="auto" height="150px" />
 			<span className={styles.welcomeText}>
-        Log in to <code className={styles.title}>Cryptcollab</code>
+				Log in to <code className={styles.title}>Cryptcollab</code>
 			</span>
 			<div className={styles.container} >
 				<Form onSubmit={handleLoginSubmit} noValidate >
 					<Form.Group className="mb-3" controlId="formBasicEmail" >
 						<Form.Label>
-              Email address or username
+							Email address or username
 						</Form.Label>
 						<Form.Control type="text" placeholder="Enter email or username" name="user" isInvalid={userError !== ""} />
 						<Form.Control.Feedback type="invalid">
@@ -95,7 +96,7 @@ export default function Login() {
 
 					<Form.Group className="mb-3" controlId="formBasicPassword">
 						<Form.Label>
-              Password
+							Password
 							<Link style={{ justifyContent: "right" }} to="/account-recovery" className={styles.forgotPasswordText}>Forgot Password?</Link>
 						</Form.Label>
 						<Form.Control type="password" placeholder="Password" name="password" isInvalid={passwordError !== ""} />
@@ -114,7 +115,7 @@ export default function Login() {
 					</Button>
 				</Form>
 				<div className={styles.footer}>
-          Not registered? <Link to="/register" className={styles.registerLink}>Sign up here</Link>
+					Not registered? <Link to="/register" className={styles.registerLink}>Sign up here</Link>
 				</div>
 			</div>
 		</div >
