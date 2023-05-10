@@ -52,7 +52,8 @@ export default function SignUp() {
 				"password": password
 			});
 			userAuth.loginUser(userData.data);
-			sendPreKeyBundleAndUserKeyStoreToServer(userAuth.userData?.userID as string, axios);
+			console.log(userData.data.userID);
+			sendPreKeyBundleAndUserKeyStoreToServer(userData.data.userID as string, axios);
 		}
 		catch (error: any) {
 

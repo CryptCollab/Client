@@ -2,7 +2,9 @@ import { AxiosInstance } from "axios";
 import { cryptoUtils } from "../App";
 
 export const sendPreKeyBundleAndUserKeyStoreToServer = async (userID: string, axios: AxiosInstance) => {
+	console.log(userID);
 	const preKeyBundle = await cryptoUtils.setIdentityAndReturnPreKeyBundle(userID);
+	
 	const preKeyPair = await cryptoUtils.returnPreKeyPair();
 	await axios.post("/api/prekeybundle", preKeyBundle);
 	// if(response.status === 200) {
