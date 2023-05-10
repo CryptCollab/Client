@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
@@ -50,8 +51,8 @@ export default function SignUp() {
 				"email": email,
 				"password": password
 			});
-			sendPreKeyBundleAndUserKeyStoreToServer(userData.data, axios);
 			userAuth.loginUser(userData.data);
+			sendPreKeyBundleAndUserKeyStoreToServer(userAuth.userData?.userID as string, axios);
 		}
 		catch (error: any) {
 
@@ -64,18 +65,18 @@ export default function SignUp() {
 
 			for (const paramError of paramErrorList) {
 				switch (paramError.param) {
-				case "username":
-					setUsernameError(paramError.msg);
-					break;
-				case "email":
-					setEmailError(paramError.msg);
-					break;
-				case "password":
-					setPasswordError(paramError.msg);
-					break;
-				default:
-					errorHandler.addError(paramError.msg);
-					break;
+					case "username":
+						setUsernameError(paramError.msg);
+						break;
+					case "email":
+						setEmailError(paramError.msg);
+						break;
+					case "password":
+						setPasswordError(paramError.msg);
+						break;
+					default:
+						errorHandler.addError(paramError.msg);
+						break;
 				}
 			}
 		}

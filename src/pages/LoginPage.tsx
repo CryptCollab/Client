@@ -43,8 +43,8 @@ export default function Login() {
 					"user": user,
 					"password": password
 				});
-			await getUserKeyStoreFromServerAndInitKeyStore(userData.data.userID, axios);
 			userAuth.loginUser(userData.data);
+			await getUserKeyStoreFromServerAndInitKeyStore(userData.data.userID, axios);
 		}
 		catch (error: any) {
 
@@ -57,15 +57,15 @@ export default function Login() {
 
 			for (const paramError of paramErrorList) {
 				switch (paramError.param) {
-				case "user":
-					setUserError(paramError.msg);
-					break;
-				case "password":
-					setPasswordError(paramError.msg);
-					break;
-				default:
-					errorHandler.addError(paramError.msg);
-					break;
+					case "user":
+						setUserError(paramError.msg);
+						break;
+					case "password":
+						setPasswordError(paramError.msg);
+						break;
+					default:
+						errorHandler.addError(paramError.msg);
+						break;
 				}
 			}
 
