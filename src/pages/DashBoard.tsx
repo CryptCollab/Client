@@ -11,6 +11,7 @@ import {
 } from "../utils/networkUtils";
 import useAuth from "../hooks/useAuth";
 import { _genRandomBuffer, genEncryptedMasterKey } from "easy-web-crypto";
+import DashboardNavBar from "../components/DashboardNavBar";
 
 interface User {
 	userName: string;
@@ -111,7 +112,7 @@ export default function DashBoard() {
 
 	return (
 		<>
-			<div>DashBoard</div>
+			<DashboardNavBar/>			
 			<form onSubmit={handleDocumentCreation}>
 				<label>
 					Document Name:
