@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button } from "react-bootstrap";
 import useLoadingDone from "../hooks/useLoadingDone";
-import UserInviteModal from "../components/UserInviteModal";
 import { cryptoUtils } from "../App";
 import {
 	getUserKeyStoreFromServerAndInitKeyStore,
@@ -112,7 +111,7 @@ export default function DashBoard() {
 
 	return (
 		<>
-			<DashboardNavBar/>			
+			<DashboardNavBar />
 			<form onSubmit={handleDocumentCreation}>
 				<label>
 					Document Name:

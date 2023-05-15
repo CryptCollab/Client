@@ -19,11 +19,11 @@ export class collabDocument {
 
 	returnEncodedStateVector = () => {
 		return Y.encodeStateAsUpdate(this.ydoc);
-	}
+	};
 
 	setDocumentState = async (state: string) => {
 		const decryptedState = await cryptoUtils.decryptGroupMessage(state);
 		Y.applyUpdate(this.ydoc, toUint8Array(decryptedState), null);
-	}
+	};
 
 }

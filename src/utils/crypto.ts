@@ -1,8 +1,7 @@
 import { SodiumPlus, Ed25519PublicKey, CryptographyKey } from "sodium-plus";
 import { X3DH, InitServerInfo, InitSenderInfo, SignedBundle, IdentityKeyPair, PreKeyPair } from "../cryptolib/x3dh";
 import { Buffer } from "buffer";
-import { Dump, Store } from "../cryptolib/secureIDBStorage";
-import { _genRandomBuffer, decrypt, encrypt, genEncryptedMasterKey, decryptMasterKey, genAESKey } from "easy-web-crypto";
+import { Dump } from "../cryptolib/secureIDBStorage";
 
 
 export type GroupKeyStore = {
@@ -193,19 +192,19 @@ export class CryptoUtils {
 		}
 		const encryptedKeyStore = await this.x3dh.exportKeyStore();
 		return encryptedKeyStore;
-	}
+	};
 
 	initKeyStoreFromDump = async (dump: Dump) => {
 		await this.x3dh.importKeyStore(dump);
-	}
+	};
 
 	initialiseKeyStore = async () => {
 		await this.x3dh.initKeyStore();
-	}
+	};
 
 	doesKeyStoreExist = (): boolean => {
 		return this.x3dh.keyStore !== undefined;
-	}
+	};
 
 	returnFromKeyStore = async (key: string): Promise<any> => {
 		if (!this.x3dh.keyStore) {
@@ -214,18 +213,18 @@ export class CryptoUtils {
 		await this.x3dh.keyStore.init();
 		const value = await this.x3dh.keyStore.get(key as string);
 		return value;
-	}
+	};
 
 	setIdentityAndReferenceKeyStore = async (identity: string) => {
 		await this.setIdentity(identity);
 		await this.initialiseKeyStore();
 		await this.x3dh.keyStore.init();
-	}
+	};
 
 	importIntoStore = async (dump: Dump) => {
 		await this.x3dh.keyStore.init();
 		await this.x3dh.keyStore.import(dump);
-	}
+	};
 
 }
 
