@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
 import useLoadingDone from "../hooks/useLoadingDone";
@@ -23,7 +23,7 @@ export default function SignUp() {
 	const [emailError, setEmailError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const userAuth = useAuth();
+	const user = useAuth();
 
 	const handleSignUpSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
@@ -33,27 +33,30 @@ export default function SignUp() {
 		setLoading(true);
 
 		try {
-			const username = event.target["username"].value;
-			const email = event.target["email"].value;
-			const password = event.target["password"].value;
+			const usernameField = event.target["username"].value;
+			const emailField = event.target["email"].value;
+			const passwordField = event.target["password"].value;
 
-			if (username == false || email == false || password == false) {
-				if (username == false) setUsernameError("Username is a required field");
-				if (email == false) setEmailError("Email is a required field");
-				else if (emailSchema.isValidSync(email) == false) setEmailError("This Email is not valid");
-				if (password == false) setPasswordError("Password is a required field");
+			if (usernameField == false || emailField == false || passwordField == false) {
+				if (usernameField == false) setUsernameError("Username is a required field");
+				if (emailField == false) setEmailError("Email is a required field");
+				else if (emailSchema.isValidSync(emailField) == false) setEmailError("This Email is not valid");
+				if (passwordField == false) setPasswordError("Password is a required field");
 				//TODO strong password check
 				return;
 			}
 
 			const userData = await axios.post("/api/register", {
-				"userName": username,
-				"email": email,
-				"password": password
+				"userName": usernameField,
+				"email": emailField,
+				"password": passwordField
 			});
-			userAuth.loginUser(userData.data);
-			console.log(userData.data.userID);
-			sendPreKeyBundleAndUserKeyStoreToServer(userData.data.userID as string, axios);
+			user.loginUser(userData.data);
+			useEffect(() => {
+				if (user.isUserLoggedIn()) {
+					sendPreKeyBundleAndUserKeyStoreToServer(user.userData?.userID as string, axios);
+				}
+			}, [user]);
 		}
 		catch (error: any) {
 

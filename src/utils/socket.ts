@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { fromUint8Array, toUint8Array } from "js-base64";
-import { cryptoUtils, socket } from "../App";
-import { InitSenderInfo, InitServerInfo } from "../cryptolib/x3dh";
+import { cryptoUtils } from "../App";
+import { InitServerInfo } from "../cryptolib/x3dh";
 import { document } from "../components/TextEditor";
 import * as awarenessProtocol from "y-protocols/awareness.js";
 import { Doc } from "yjs";
@@ -14,7 +14,7 @@ export class socketHandlers {
 	isConnected: boolean | undefined;
 	awareness: any;
 	documentID!: string;
-	updateCounter: number = 0;
+	updateCounter = 0;
 	constructor(socketURL: string | undefined) {
 		this.socketURL = socketURL || "http://localhost:8080";
 		this.updateCounter = 0;
@@ -170,7 +170,7 @@ export class socketHandlers {
 		this.socketInstance.on("disconnect", this.onDisconnect);
 		this.socketInstance.on("groupMessage", this.processGroupMessage);
 		this.socketInstance.on("documentUpdate", document.applyDocumentUpdate);
-		this.socketInstance.on("documentState", document.setDocumentState)
+		this.socketInstance.on("documentState", document.setDocumentState);
 		this.socketInstance.on("awarenessUpdate", this.applyAwarenessUpdate);
 		this.socketInstance.on("preKeyBundleWithUserID", this.preKeyBundleRecievedFromServer);
 		this.awareness.on("update", this.distributeAwarenessUpdate);

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAxios from "../hooks/useAxios";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -18,7 +18,7 @@ export default function Login() {
 	const [userError, setUserError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const userAuth = useAuth();
+	const user = useAuth();
 
 
 	const handleLoginSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
@@ -26,25 +26,30 @@ export default function Login() {
 		setUserError("");
 		setPasswordError("");
 		setLoading(true);
+		useEffect(() => {
+			if (user.isUserLoggedIn()) {
+				getUserKeyStoreFromServerAndInitKeyStore(user.userData?.userID as string, axios);
+			}
+		}, [user]);
 
 		try {
-			const user = event.target["user"].value;
-			const password = event.target["password"].value;
+			const userField = event.target["user"].value;
+			const passwordField = event.target["password"].value;
 
-			if (user == false || password == false) {
-				if (user == false) setUserError("Email or username is a required field");
-				if (password == false) setPasswordError("Password is a required field");
+			if (userField == false || passwordField == false) {
+				if (userField == false) setUserError("Email or username is a required field");
+				if (passwordField == false) setPasswordError("Password is a required field");
 				return;
 			}
 
 			const userData = await axios.post<UserData>(
 				"/api/login",
 				{
-					"user": user,
-					"password": password
+					"user": userField,
+					"password": passwordField
 				});
-			userAuth.loginUser(userData.data);
-			await getUserKeyStoreFromServerAndInitKeyStore(userData.data.userID, axios);
+			user.loginUser(userData.data);
+
 		}
 		catch (error: any) {
 
@@ -57,15 +62,15 @@ export default function Login() {
 
 			for (const paramError of paramErrorList) {
 				switch (paramError.param) {
-					case "user":
-						setUserError(paramError.msg);
-						break;
-					case "password":
-						setPasswordError(paramError.msg);
-						break;
-					default:
-						errorHandler.addError(paramError.msg);
-						break;
+				case "user":
+					setUserError(paramError.msg);
+					break;
+				case "password":
+					setPasswordError(paramError.msg);
+					break;
+				default:
+					errorHandler.addError(paramError.msg);
+					break;
 				}
 			}
 
