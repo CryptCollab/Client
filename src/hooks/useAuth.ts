@@ -2,6 +2,8 @@ import { useContext } from "react";
 import AuthContext from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
+
+//TODO: // manage sending and receiving keys from within the hook
 export default function useAuth() {
 	const user = useContext(AuthContext);
 	const navigate = useNavigate();
