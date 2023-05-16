@@ -61,8 +61,9 @@ export default function Document() {
     useState<DocumentMetaData | null>(null);
 	const axios = useAxios();
 	const auth = useAuth();
-	let { state } = useLocation();
-	useLoadingDone();
+	const { state } = useLocation();
+	const loadingDone = useLoadingDone();
+	loadingDone();
 	const {
 		documentName,
 		documentID,
@@ -172,7 +173,7 @@ export default function Document() {
 				}
 			});
 
-			state = {};
+			// state = {};
 		});
 	}, []);
 

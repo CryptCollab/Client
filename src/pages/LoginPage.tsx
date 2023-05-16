@@ -12,25 +12,20 @@ import ParamErrorListSchema, { ParamError } from "../schema/ParamErrorSchema";
 import { getUserKeyStoreFromServerAndInitKeyStore } from "../utils/networkUtils";
 
 export default function Login() {
-	useLoadingDone();
+	const loadingDone = useLoadingDone();
 	const axios = useAxios();
 	const errorHandler = useErrorHandler();
 	const [userError, setUserError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const user = useAuth();
+	loadingDone();
 
 
 	const handleLoginSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
 		setUserError("");
 		setPasswordError("");
-		setLoading(true);
-		useEffect(() => {
-			if (user.isUserLoggedIn()) {
-				getUserKeyStoreFromServerAndInitKeyStore(user.userData?.userID as string, axios);
-			}
-		}, [user]);
 
 		try {
 			const userField = event.target["user"].value;

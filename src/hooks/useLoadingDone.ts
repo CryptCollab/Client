@@ -6,8 +6,8 @@ import { useLoadingContext } from "react-router-loading";
 export default function useLoadingDone() {
 	const loadingContext = useLoadingContext();
 
-	useEffect(() => {
+	const loadingDone = () => {
 		loadingContext.done();
-	}, []);
-
+	};
+	return loadingDone;
 }
