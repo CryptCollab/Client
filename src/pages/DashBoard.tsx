@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import { Button } from "react-bootstrap";
 import useLoadingDone from "../hooks/useLoadingDone";
@@ -7,23 +7,24 @@ import { cryptoUtils } from "../App";
 import {
 	getUserKeyStoreFromServerAndInitKeyStore,
 	sendGroupKeyToServer,
+	sendPreKeyBundleAndUserKeyStoreToServer,
 } from "../utils/networkUtils";
 import useAuth from "../hooks/useAuth";
 
 interface User {
-	userName: string;
-	email: string;
-	userId: string;
+  userName: string;
+  email: string;
+  userId: string;
 }
 
 type userInvites = {
-	documentName: string;
-	documentID: string;
-	participantID: string;
-	leaderID: string;
-	preKeyBundle: string;
-	entityID: string;
-	entityKeyName: string;
+  documentName: string;
+  documentID: string;
+  participantID: string;
+  leaderID: string;
+  preKeyBundle: string;
+  entityID: string;
+  entityKeyName: string;
 };
 
 export default function DashBoard() {
@@ -33,32 +34,57 @@ export default function DashBoard() {
 	const navigate = useNavigate();
 	const axios = useAxios();
 	const auth = useAuth();
+	const { state } = useLocation();
+	const { isRegistering } = state as { isRegistering: boolean };
+	const loadingDone = useLoadingDone();
 	// useEffect(() => {
 	// 	console.log(auth.userData);
 	// });
-	useLoadingDone();
 
-	const handleDocumentCreation: React.FormEventHandler<HTMLFormElement> = async (event) => {
-		event.preventDefault();
-		const documentName = event.target["documentName"].value;
-		console.log(documentName);
-		const data = await protectedAxios.post("/api/document", {
-			documentName,
+	if (isRegistering) {
+		sendPreKeyBundleAndUserKeyStoreToServer(
+      auth.userData?.userID as string,
+      axios
+		).then(() => {
+			getUserKeyStoreFromServerAndInitKeyStore(
+			auth.userData?.userID as string,
+			axios
+			).then(() => { 
+				loadingDone();
+			});
 		});
-		console.log("Document Created");
-		const documentID: string = data.data;
-		const groupKeys = await cryptoUtils.generateGroupKeys();
-		await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
-		await sendGroupKeyToServer(documentID, protectedAxios);
-		navigate("/document/" + documentID, {
-			replace: true,
-			state: {
-				documentName,
-				newDocumentCreation: true,
-				documentID,
-			},
+	} else {
+		getUserKeyStoreFromServerAndInitKeyStore(
+      auth.userData?.userID as string,
+      axios
+		).then(() => {
+			loadingDone();
 		});
-	};
+	}
+
+	const handleDocumentCreation: React.FormEventHandler<
+    HTMLFormElement
+  > = async (event) => {
+  	event.preventDefault();
+  	const documentName = event.target["documentName"].value;
+  	console.log(documentName);
+  	const data = await protectedAxios.post("/api/document", {
+  		documentName,
+  	});
+  	console.log("Document Created");
+  	const documentID: string = data.data;
+  	const groupKeys = await cryptoUtils.generateGroupKeys();
+  	await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
+  	await sendGroupKeyToServer(documentID, protectedAxios);
+  	navigate("/document/" + documentID, {
+  		replace: true,
+  		state: {
+  			documentName,
+  			newDocumentCreation: true,
+  			documentID,
+  		},
+  	});
+  };
 
 	const handleNewDocumentJoining = async (documentInvite: userInvites) => {
 		navigate("/document/" + documentInvite.documentID, {
@@ -72,7 +98,10 @@ export default function DashBoard() {
 		});
 	};
 
-	const handleExistingDocumentJoining = async (documentID: string, documentName: string) => {
+	const handleExistingDocumentJoining = async (
+		documentID: string,
+		documentName: string
+	) => {
 		navigate("/document/" + documentID, {
 			replace: true,
 			state: {
@@ -102,8 +131,8 @@ export default function DashBoard() {
 		});
 
 		getUserKeyStoreFromServerAndInitKeyStore(
-			auth.userData?.userID as string,
-			axios
+      auth.userData?.userID as string,
+      axios
 		);
 	}, []);
 
@@ -112,7 +141,7 @@ export default function DashBoard() {
 			<div>DashBoard</div>
 			<form onSubmit={handleDocumentCreation}>
 				<label>
-					Document Name:
+          Document Name:
 					<input type="text" name="documentName" />
 				</label>
 				<button type="submit">Create Document</button>
@@ -127,7 +156,7 @@ export default function DashBoard() {
 							variant="primary"
 							onClick={() => handleNewDocumentJoining(invite)}
 						>
-							Open
+              Open
 						</Button>
 					</li>
 				</ul>
@@ -140,9 +169,14 @@ export default function DashBoard() {
 						{documentInfo.documentName}
 						<Button
 							variant="primary"
-							onClick={() => handleExistingDocumentJoining(documentInfo.documentID, documentInfo.documentName)}
+							onClick={() =>
+								handleExistingDocumentJoining(
+									documentInfo.documentID,
+									documentInfo.documentName
+								)
+							}
 						>
-							Open
+              Open
 						</Button>
 					</li>
 				</ul>

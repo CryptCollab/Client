@@ -13,10 +13,14 @@ export default function useAuth() {
 		 * Logs in the user using the provided user data
 		 * then redirects to the redirectURL if it exists in the location state
 		 */
-		loginUser: (userData: UserData): void => {
+		loginUser: (userData: UserData, isRegistering = false): void => {
 			user.setUserData(userData);
 			const redirectURL: string = location.state?.redirectURL ?? "/dashboard";
-			navigate(redirectURL, { replace: true });
+			navigate(redirectURL, {
+				replace: true, state: {
+					isRegistering,
+				}
+			});
 		},
 		logoutUser: (): void => { user.setUserData(null); }
 	};

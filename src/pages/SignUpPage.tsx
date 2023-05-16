@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import useAuth from "../hooks/useAuth";
 import useAxios from "../hooks/useAxios";
 import useLoadingDone from "../hooks/useLoadingDone";
@@ -11,12 +11,12 @@ import useErrorHandler from "../hooks/useErrorHandler";
 import * as yup from "yup";
 import ParamErrorListSchema, { ParamError } from "../schema/ParamErrorSchema";
 import { RotatingLines } from "react-loader-spinner";
-import { sendPreKeyBundleAndUserKeyStoreToServer } from "../utils/networkUtils";
+
 
 const emailSchema = yup.string().email().required();
 export default function SignUp() {
 
-	useLoadingDone();
+	const loadingDone = useLoadingDone();
 	const axios = useAxios();
 	const errorHandler = useErrorHandler();
 	const [usernameError, setUsernameError] = useState("");
@@ -24,7 +24,13 @@ export default function SignUp() {
 	const [passwordError, setPasswordError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const user = useAuth();
-
+	loadingDone();
+	// useEffect(() => {
+	// 	console.log(user.userData);
+	// 	if (user.isUserLoggedIn()) {
+	// 		sendPreKeyBundleAndUserKeyStoreToServer(user.userData?.userID as string, axios);
+	// 	}
+	// }, [user.userData?.userID]);
 	const handleSignUpSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
 		setUsernameError("");
@@ -51,12 +57,9 @@ export default function SignUp() {
 				"email": emailField,
 				"password": passwordField
 			});
-			user.loginUser(userData.data);
-			useEffect(() => {
-				if (user.isUserLoggedIn()) {
-					sendPreKeyBundleAndUserKeyStoreToServer(user.userData?.userID as string, axios);
-				}
-			}, [user]);
+
+			user.loginUser(userData.data, true);
+		
 		}
 		catch (error: any) {
 
