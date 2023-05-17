@@ -21,44 +21,44 @@ import DocNavBar from "../components/DocNavBar";
 type LocalOption = Record<string, User>;
 
 interface User {
-  userName: string;
-  email: string;
-  userID: string;
+	userName: string;
+	email: string;
+	userID: string;
 }
 
 type DocumentMetaData = {
-  leaderID: string;
-  total_participants: number;
-  participant_ids: string[];
-  latest_document_update: string;
-  entityId: string;
-  entityKeyName: string;
+	leaderID: string;
+	total_participants: number;
+	participant_ids: string[];
+	latest_document_update: string;
+	entityId: string;
+	entityKeyName: string;
 };
 
 type userInvites = {
-  documentName: string;
-  documentID: string;
-  participantID: string;
-  leaderID: string;
-  preKeyBundle: string;
+	documentName: string;
+	documentID: string;
+	participantID: string;
+	leaderID: string;
+	preKeyBundle: string;
 };
 
 type preKeyBundle = {
-  userID: string;
-  preKeyBundle: {
-    IdentityKey: string;
-    SignedPreKey: {
-      Signature: string;
-      PreKey: string;
-    };
-  };
+	userID: string;
+	preKeyBundle: {
+		IdentityKey: string;
+		SignedPreKey: {
+			Signature: string;
+			PreKey: string;
+		};
+	};
 };
 
 export default function Document() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selected, setSelected] = useState<any[]>([]);
 	const [documentMetaData, setDocumentMetaData] =
-    useState<DocumentMetaData | null>(null);
+		useState<DocumentMetaData | null>(null);
 	const axios = useAxios();
 	const auth = useAuth();
 	const { state } = useLocation();
@@ -85,9 +85,9 @@ export default function Document() {
 
 		const parsedPreKeyBundle: InitSenderInfo = JSON.parse(preKeyBundle);
 		const firstMessageFromHandshake =
-      await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
-      	parsedPreKeyBundle
-      );
+			await cryptoUtils.establishSharedKeyAndDecryptFirstMessage(
+				parsedPreKeyBundle
+			);
 		cryptoUtils.groupKeyStore = {
 			nonce: firstMessageFromHandshake.toString().slice(0, 48),
 			groupKey: firstMessageFromHandshake.toString().slice(48),
@@ -124,7 +124,7 @@ export default function Document() {
 			{ participantIDs }
 		);
 		const preKeyBundleOfParticipants: preKeyBundle[] =
-      preKeyBundleRequestResponse.data;
+			preKeyBundleRequestResponse.data;
 		const userInvitesArray: userInvites[] = [];
 		const groupKey = await cryptoUtils.generateGroupKeyStoreBundle(documentID);
 		for (const preKeyBundle of preKeyBundleOfParticipants) {
@@ -138,11 +138,11 @@ export default function Document() {
 			};
 
 			const firstMessageFromHandshake =
-        await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
-        	participantID,
-        	preKeyBundleForHandshake,
-        	groupKey
-        );
+				await cryptoUtils.establishSharedKeyAndEncryptFirstMessage(
+					participantID,
+					preKeyBundleForHandshake,
+					groupKey
+				);
 			const userInvite: userInvites = {
 				documentName: documentName,
 				documentID: documentID,
@@ -162,8 +162,8 @@ export default function Document() {
 		getDocumentMetaData(axios, documentID).then((documentMetaData) => {
 			setDocumentMetaData(documentMetaData as DocumentMetaData);
 			getUserKeyStoreFromServerAndInitKeyStore(
-        auth.userData?.userID as string,
-        axios
+				auth.userData?.userID as string,
+				axios
 			).then(() => {
 				if (newDocumentJoin) {
 					handleNewDocumentJoin(documentInvite);

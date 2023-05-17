@@ -10,21 +10,25 @@ import {
 	sendPreKeyBundleAndUserKeyStoreToServer,
 } from "../utils/networkUtils";
 import useAuth from "../hooks/useAuth";
+import { _genRandomBuffer, genEncryptedMasterKey } from "easy-web-crypto";
+import DashboardNavBar from "../components/DashboardNavBar";
+import { Card, CardGroup, Container } from 'react-bootstrap';
+import styles from "../styles/Dashboard.module.css";
 
 interface User {
-  userName: string;
-  email: string;
-  userId: string;
+	userName: string;
+	email: string;
+	userId: string;
 }
 
 type userInvites = {
-  documentName: string;
-  documentID: string;
-  participantID: string;
-  leaderID: string;
-  preKeyBundle: string;
-  entityID: string;
-  entityKeyName: string;
+	documentName: string;
+	documentID: string;
+	participantID: string;
+	leaderID: string;
+	preKeyBundle: string;
+	entityID: string;
+	entityKeyName: string;
 };
 
 export default function DashBoard() {
@@ -35,56 +39,58 @@ export default function DashBoard() {
 	const axios = useAxios();
 	const auth = useAuth();
 	const { state } = useLocation();
-	const { isRegistering } = state as { isRegistering: boolean };
+	//const { isRegistering } = state as { isRegistering: boolean };
 	const loadingDone = useLoadingDone();
 	// useEffect(() => {
 	// 	console.log(auth.userData);
 	// });
-
-	if (isRegistering) {
+	if (state === null) {
+		loadingDone();
+	}
+	else if (state.isRegistering) {
 		sendPreKeyBundleAndUserKeyStoreToServer(
-      auth.userData?.userID as string,
-      axios
-		).then(() => {
-			getUserKeyStoreFromServerAndInitKeyStore(
 			auth.userData?.userID as string,
 			axios
-			).then(() => { 
+		).then(() => {
+			getUserKeyStoreFromServerAndInitKeyStore(
+				auth.userData?.userID as string,
+				axios
+			).then(() => {
 				loadingDone();
 			});
 		});
 	} else {
 		getUserKeyStoreFromServerAndInitKeyStore(
-      auth.userData?.userID as string,
-      axios
+			auth.userData?.userID as string,
+			axios
 		).then(() => {
 			loadingDone();
 		});
 	}
 
 	const handleDocumentCreation: React.FormEventHandler<
-    HTMLFormElement
-  > = async (event) => {
-  	event.preventDefault();
-  	const documentName = event.target["documentName"].value;
-  	console.log(documentName);
-  	const data = await protectedAxios.post("/api/document", {
-  		documentName,
-  	});
-  	console.log("Document Created");
-  	const documentID: string = data.data;
-  	const groupKeys = await cryptoUtils.generateGroupKeys();
-  	await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
-  	await sendGroupKeyToServer(documentID, protectedAxios);
-  	navigate("/document/" + documentID, {
-  		replace: true,
-  		state: {
-  			documentName,
-  			newDocumentCreation: true,
-  			documentID,
-  		},
-  	});
-  };
+		HTMLFormElement
+	> = async (event) => {
+		event.preventDefault();
+		const documentName = event.target["documentName"].value;
+		console.log(documentName);
+		const data = await protectedAxios.post("/api/document", {
+			documentName,
+		});
+		console.log("Document Created");
+		const documentID: string = data.data;
+		const groupKeys = await cryptoUtils.generateGroupKeys();
+		await cryptoUtils.saveGroupKeysToIDB(groupKeys, documentID);
+		await sendGroupKeyToServer(documentID, protectedAxios);
+		navigate("/document/" + documentID, {
+			replace: true,
+			state: {
+				documentName,
+				newDocumentCreation: true,
+				documentID,
+			},
+		});
+	};
 
 	const handleNewDocumentJoining = async (documentInvite: userInvites) => {
 		navigate("/document/" + documentInvite.documentID, {
@@ -119,6 +125,7 @@ export default function DashBoard() {
 
 	const getDocumentInvites = async () => {
 		const data = await protectedAxios.get("/api/document/invites");
+		console.log(data.data)
 		return data.data;
 	};
 
@@ -131,56 +138,60 @@ export default function DashBoard() {
 		});
 
 		getUserKeyStoreFromServerAndInitKeyStore(
-      auth.userData?.userID as string,
-      axios
+			auth.userData?.userID as string,
+			axios
 		);
 	}, []);
 
 	return (
 		<>
-			<div>DashBoard</div>
-			<form onSubmit={handleDocumentCreation}>
-				<label>
-          Document Name:
-					<input type="text" name="documentName" />
-				</label>
-				<button type="submit">Create Document</button>
-			</form>
-			<br />
-			<h1>Document Invites</h1>
-			{documentInvites.map((invite: userInvites) => (
-				<ul key={invite.entityID}>
-					<li>
-						{invite.documentName}
-						<Button
-							variant="primary"
-							onClick={() => handleNewDocumentJoining(invite)}
-						>
-              Open
-						</Button>
-					</li>
-				</ul>
-			))}
-			<br />
-			<h1>Documents you have worked on: </h1>
-			{existingdocuments.map((documentInfo: any) => (
-				<ul key={documentInfo.documentID}>
-					<li>
-						{documentInfo.documentName}
-						<Button
-							variant="primary"
-							onClick={() =>
-								handleExistingDocumentJoining(
-									documentInfo.documentID,
-									documentInfo.documentName
-								)
-							}
-						>
-              Open
-						</Button>
-					</li>
-				</ul>
-			))}
+			<DashboardNavBar />
+			<Container fluid >
+				<h1>Document Invites</h1>
+				<div className={styles.scrollbar}>
+					<CardGroup>
+						{documentInvites.map((invite: userInvites) => (
+							<Card key={invite.entityID}>
+								<Card.Body className="d-flex flex-column align-items-center">
+									<Card.Title className="text-center">{invite.documentID}</Card.Title>
+									<Button
+										variant="link"
+										className="mt-auto"
+										onClick={() => handleNewDocumentJoining(invite)}
+									>
+										Open
+									</Button>
+								</Card.Body>
+							</Card>
+						))}
+					</CardGroup>
+				</div>
+				<br />
+				<h1>Recent Docs</h1>
+				<div className={styles.scrollbar} >
+					<CardGroup>
+						{existingdocuments.map((documentInfo: any) => (
+							<Card key={documentInfo.documentID}>
+								<Card.Body className="d-flex flex-column align-items-center">
+									<Card.Title className="text-center">{documentInfo.documentName}</Card.Title>
+									<Button
+										variant="link"
+										className="mt-auto"
+										onClick={() =>
+											handleExistingDocumentJoining(
+												documentInfo.documentID,
+												documentInfo.documentName
+											)
+										}
+									>
+										Open
+									</Button>
+								</Card.Body>
+							</Card>
+						))}
+					</CardGroup>
+				</div>
+			</Container>
 		</>
 	);
 }

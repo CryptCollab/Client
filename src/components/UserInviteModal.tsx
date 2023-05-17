@@ -2,13 +2,13 @@ import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import TypeAhead, { TypeAheadProps } from "./TypeAhead";
 
-interface UserInvitieModalProps extends TypeAheadProps {
-  isModalOpen: boolean;
-  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleInvite: () => void;
+interface UserInviteModalProps extends TypeAheadProps {
+	isModalOpen: boolean;
+	setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	handleInvite: () => void;
 }
 
-const UserInviteModal: React.FC<UserInvitieModalProps> = ({
+const UserInviteModal: React.FC<UserInviteModalProps> = ({
 	isModalOpen,
 	setIsModalOpen,
 	selectedUserList,
@@ -31,10 +31,10 @@ const UserInviteModal: React.FC<UserInvitieModalProps> = ({
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant="primary" onClick={handleInvite}>
-          Invite
+					Invite
 				</Button>
 				<Button variant="secondary" onClick={closeModal}>
-          Close
+					Close
 				</Button>
 			</Modal.Footer>
 		</Modal>
