@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Mada:wght@700&display=swap');
+
+.root {
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 4em;
+    padding-top: 6em;
+    align-items: center;
+    justify-content: start;
+}
+
+.container {
+    padding: 16px;
+    width: min(400px, 90vw);
+    border: 1px solid var(--color-border-muted);
+    background-color: var(--color-canvas-subtle);
+    border-radius: 6px;
+}
+
+.title {
+    font-size: 1.1em;
+    background: -webkit-linear-gradient(left, rgb(26, 188, 156), rgb(41, 128, 185));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcomeText {
+    font-family: 'Mada', sans-serif;
+    font-size: 1.5em;
+}
+
+.footer {
+    margin-top: 0.5em;
+}
+
+
+
+@media screen and (max-width: 576px) {
+    .welcomeText {
+        font-size: 1.23em;
+    }
+}
+
+
+@media screen and (max-height: 768px) {
+    .root {
+        padding-top: 1em;
+        gap: 1em;
+    }
+}
+
+@media screen and (max-height: 576px) {
+    .root {
+        padding-top: 0.5em;
+        gap: 0.5em;
+    }
+}

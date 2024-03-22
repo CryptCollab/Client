@@ -1,32 +1,123 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import styles from '../styles/app.module.css'
-import useAuth from '../hooks/useAuth';
+import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import { useEffect, useState } from "react";
+import useAxios from "../hooks/useAxios";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import styles from "../styles/login-signup.module.css";
+import useLoadingDone from "../hooks/useLoadingDone";
+import { RotatingLines } from "react-loader-spinner";
+import useErrorHandler from "../hooks/useErrorHandler";
+import ParamErrorListSchema, { ParamError } from "../schema/ParamErrorSchema";
+import { getUserKeyStoreFromServerAndInitKeyStore } from "../utils/networkUtils";
 
 export default function Login() {
-    const user = useAuth();
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+	const loadingDone = useLoadingDone();
+	const axios = useAxios();
+	const errorHandler = useErrorHandler();
+	const [userError, setUserError] = useState("");
+	const [passwordError, setPasswordError] = useState("");
+	const [loading, setLoading] = useState(false);
+	const user = useAuth();
+	loadingDone();
 
-    // login user and store user data in redux store
-    // redirect to requested page
-    const handleLoginClick = () => {
-        user.loginUser({});
-        const redirectURL: string = searchParams.get('redirectURL') ?? "/dashboard";
-        console.log(redirectURL)
-        navigate(redirectURL)
-    }
 
-    return (
-        <div className={styles.main}>
-            Welcome back! Please login to continue<br />
-            <form onSubmit={event => event.preventDefault()}>
-                <label htmlFor="usernameInputBox">Username: </label>
-                <input id="usernameInputBox" type="text" name="usernameInputBox" /><br />
-                <label htmlFor="passwordInputBox">Password: </label>
-                <input id="passwordInputBox" type="password" name="passwordInputBox" /><br />
-                <input id="submitButton" onClick={handleLoginClick} type="submit" value="Login" /><br />
-            </form><br />
-            <span> New User? Sign up <Link to="/register">here</Link></span>
-        </div>
-    )
+	const handleLoginSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+		event.preventDefault();
+		setUserError("");
+		setPasswordError("");
+
+		try {
+			const userField = event.target["user"].value;
+			const passwordField = event.target["password"].value;
+
+			if (userField == false || passwordField == false) {
+				if (userField == false) setUserError("Email or username is a required field");
+				if (passwordField == false) setPasswordError("Password is a required field");
+				return;
+			}
+
+			const userData = await axios.post<UserData>(
+				"/api/login",
+				{
+					"user": userField,
+					"password": passwordField
+				});
+			user.loginUser(userData.data);
+
+		}
+		catch (error: any) {
+
+			if (!ParamErrorListSchema.isValidSync(error?.response?.data?.errors)) {
+				errorHandler.addError(error);
+				return;
+			}
+
+			const paramErrorList = error.response.data.errors as ParamError[];
+
+			for (const paramError of paramErrorList) {
+				switch (paramError.param) {
+				case "user":
+					setUserError(paramError.msg);
+					break;
+				case "password":
+					setPasswordError(paramError.msg);
+					break;
+				default:
+					errorHandler.addError(paramError.msg);
+					break;
+				}
+			}
+
+		}
+		finally {
+			setLoading(false);
+		}
+	};
+
+
+	return (
+		<div className={styles.root}>
+			<img src='logo_200_light.png' width="auto" height="150px" />
+			<span className={styles.welcomeText}>
+				Log in to <code className={styles.title}>Cryptcollab</code>
+			</span>
+			<div className={styles.container} >
+				<Form onSubmit={handleLoginSubmit} noValidate >
+					<Form.Group className="mb-3" controlId="formBasicEmail" >
+						<Form.Label>
+							Email address or username
+						</Form.Label>
+						<Form.Control type="text" placeholder="Enter email or username" name="user" isInvalid={userError !== ""} />
+						<Form.Control.Feedback type="invalid">
+							{userError}
+						</Form.Control.Feedback>
+					</Form.Group>
+
+					<Form.Group className="mb-3" controlId="formBasicPassword">
+						<Form.Label>
+							Password
+							<Link style={{ justifyContent: "right" }} to="/account-recovery" className={styles.forgotPasswordText}>Forgot Password?</Link>
+						</Form.Label>
+						<Form.Control type="password" placeholder="Password" name="password" isInvalid={passwordError !== ""} />
+						<Form.Control.Feedback type="invalid">
+							{passwordError}
+						</Form.Control.Feedback>
+					</Form.Group>
+					<Button variant="primary" type="submit" className="submitButton" disabled={loading}>
+						{(loading) ? <RotatingLines
+							strokeColor="white"
+							strokeWidth="5"
+							animationDuration="0.75"
+							width="20"
+							visible={true}
+						/> : "Submit"}
+					</Button>
+				</Form>
+				<div className={styles.footer}>
+					Not registered? <Link to="/register" className={styles.registerLink}>Sign up here</Link>
+				</div>
+			</div>
+		</div >
+	);
 }

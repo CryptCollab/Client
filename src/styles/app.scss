@@ -1,0 +1,13 @@
+.form-label {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.submitButton {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+@import "bootstrap";
